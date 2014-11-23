@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using MyDataStructs;
 
 namespace OSsimulator
 {
@@ -117,16 +119,166 @@ namespace OSsimulator
 
     public class pcb
     {
+        private enum States { New, Running, Waiting, Ready, Terminated}
+        private enum Actions { Process, Input, Output }
+        private enum Type { Keyboard, Monitor, HD }
+
+        struct Job
+        {
+            int cycleLength;
+            Actions action;
+            Type? device;
+
+            public Job(int cl, Actions a, Type? d)
+            {
+                cycleLength = cl;
+                action = a;
+                device = d;
+            }
+            
+            public Job(Job r)
+            {
+                cycleLength = r.cycleLength;
+                action = r.action;
+                device = r.device;
+            }
+
+
+            public void print()
+            {
+                switch(action)
+                {
+                    case Actions.Process:
+                        Console.Write("P(");
+                        break;
+                    case Actions.Input:
+                        Console.Write("I(");
+                        break;
+                    case Actions.Output:
+                        Console.Write("O(");
+                        break;
+                }
+
+                switch(device)
+                {
+                    case null:
+                        Console.Write("run)");
+                        break;
+                    case Type.HD:
+                        Console.Write("hard drive)");
+                        break;
+                    case Type.Keyboard:
+                        Console.Write("keyboard)");
+                        break;
+                    case Type.Monitor:
+                        Console.Write("monitor)");
+                        break;
+                }
+
+                Console.Write(cycleLength);
+            }
+
+        }
+
         // Member Fields
-		    // State
-		    // Cycles remaining
+        private States state;
+		private int  remainingCycles;
 		    // I/O Status info: Flag for waiting for interrupt, I/O requirements
-		    // Upcoming processes
+        private Queue<Job> upcomingJobs;
 
         // Constructors
-        public pcb()
-        {
 
+        public pcb(ref StreamReader fin)
+        {
+            state = States.New;
+            remainingCycles = 0;
+            upcomingJobs = new Queue<Job>();
+            int cl = 0;
+            Actions a = Actions.Process;
+            Type? d = null;
+            char[] buffer = new char[80];
+
+            while(getNextJob(ref fin, ref cl, ref  a, ref d))
+            {
+                Job j;
+                j = new Job(cl, a, d);
+                upcomingJobs.Enqueue(j);
+            }
+
+            fin.Read(buffer, 0, 6);
+        }
+
+        private bool getNextJob(ref StreamReader fin, ref int cl,ref Actions a,ref Type? d)
+        {
+            char charRead;
+            char[] buffer = new char[80];
+            string str = "";
+
+            // Gets the space
+            charRead = (char) fin.Read();
+            charRead = (char)fin.Read();
+
+            //Reads in the component letter
+            switch(charRead)
+            {
+                case 'P':
+                    a = Actions.Process;
+                    d = null;
+                    fin.Read(buffer, 0, 5);
+                    break;
+                case 'I':
+                    a = Actions.Input;
+                    charRead = (char) fin.Read();
+                    break;
+                case 'O':
+                    a = Actions.Output;
+                    charRead = (char)fin.Read();
+                    break;
+                case 'A':
+                    return false;
+            }
+
+            // Reads in the descriptors
+            if(a != Actions.Process)
+            {
+                charRead = (char) fin.Read();
+
+                if(charRead == 'h')
+                {
+                    d = Type.HD;
+                    fin.Read(buffer, 0, 10);
+                }
+                else if(charRead == 'm')
+                {
+                    d = Type.Monitor;
+                    fin.Read(buffer, 0, 7);
+                }
+                else
+                {
+                    d = Type.Keyboard;
+                    fin.Read(buffer, 0, 8);
+                }
+            }
+            
+            // Gets the cycle length
+            while((char) fin.Peek() != ';')
+            {
+                charRead = (char)fin.Read();
+                str += charRead;
+            }
+            cl = int.Parse(str);
+            charRead = (char)fin.Read();
+
+            return true;
+        }
+
+        public void print()
+        {
+            while(upcomingJobs.Count != 0)
+            {
+                Job tmp = new Job(upcomingJobs.Dequeue());
+                tmp.print();
+            }
         }
 
         // Methods
@@ -233,9 +385,8 @@ namespace OSsimulator
         {
             // Temp Program Holds
             Console.WriteLine("Press any key to exit.");
-            Console.ReadKey();   
+            Console.ReadKey();
 
-            
             // Initialize System
                 // Initialize Classes
                 // Read-in, populate memory, set configuration
@@ -243,8 +394,7 @@ namespace OSsimulator
                     // Hand over control to processing module
                         // Process threads, I/O, interrupt monitoring
                     // Loop until end of metadata
-            // Shutdown
-             
+            // Shutdown             
         }
     }
 }

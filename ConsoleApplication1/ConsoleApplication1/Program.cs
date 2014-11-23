@@ -1,9 +1,12 @@
 ﻿
 // github VS test
 using System;
+using System.IO;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OSsimulator
@@ -44,23 +47,96 @@ namespace OSsimulator
     public class clock // Dependent on System Time
     {
         // Member Fields
-		    // Time started
-		    // Time stopped
-		    // Stopwatch interval
-		    // Started (yes or no)
+        int processorTime;  
+        int monitorTime;
+        int hardDriveTime;
+        int printerTime;
+        int keyBoardTime;
+        Stopwatch stopwatch;
 
         // Constructors
+
+        // default constructor
         public clock()
         {
-
+            processorTime = 0;
+            monitorTime = 0;
+            hardDriveTime = 0;
+            printerTime = 0;
+            keyBoardTime = 0;
+            stopwatch = new Stopwatch();
         }
 
-        // Methods   
-		    // Start: Starts the timer
-		    // Stop: Stops the timer
-            // GetElapsedTime: Gets time elapsed from start
-		    // StopWatch: Creates a stopwatch with desired value
-		    // Convert: Converts cycles to ms
+        // Methods  
+ 
+        // sets Clock values dependening on the Config file
+        public void setClock(int procTime, int mTime, int hTime, int prTime, int kTime)
+        {
+            processorTime = procTime;
+            monitorTime = mTime;
+            hardDriveTime = hTime;
+            printerTime = prTime;
+            keyBoardTime = kTime;
+        }
+
+        // Starts the stopwatch
+        public void startSW()
+        {
+            stopwatch.Start();
+        }
+
+        // Stops the stopwatch
+        public void stopSW()
+        {
+            stopwatch.Stop();
+        }
+
+        // retuns a string containing the number of nanonseconds elapsed from start to stop
+        public string getElapsedTime()
+        {
+            return (((double)(stopwatch.Elapsed.TotalMilliseconds * 1000000)).ToString("(0.00 ns)"));
+        }
+
+        // creates a delay to simulate time
+        public void delay(string type, int cycles)
+        {
+            // simulates processor time
+            if (type == "PROCESSOR")
+            {
+                Thread.Sleep(processorTime * cycles);
+            }
+
+            // simulates monitor time
+            if (type == "MONITOR")
+            {
+                Thread.Sleep(monitorTime * cycles);
+            }
+
+            // simulates hard drive time
+            if (type == "HARDDRIVE")
+            {
+                Thread.Sleep(hardDriveTime * cycles);
+            }
+
+            // simulates printer time
+            if (type == "PRINTER")
+            {
+                Thread.Sleep(printerTime * cycles);
+            }
+
+            // simulates keyboard time
+            if (type == "KEYBOARD")
+            {
+                Thread.Sleep(keyBoardTime * cycles);
+            }
+
+            // simulates anytime you want
+            if (type == "MANUAL")
+            {
+                Thread.Sleep(cycles);
+            }
+        }
+        
     }
 
     public class interruptManager // Interrupts will be handled by an Interrupt Management class.  The class will keep track of all processes that are currently waiting on an interrupt.  The class will implement a pulling method that checks if any of the interrupts have gone off, and then handle them appropriately. 
@@ -229,22 +305,94 @@ namespace OSsimulator
 
     class Program
     {
+        private static int quantum;
+        private static int procTime;
+        private static int monTime;
+        private static int hdTime;
+        private static int prinTime;
+        private static int keybTime;
+        private static String log;
+        private static String procSch;
+        private static String filePath;
+        private static String memoryType;
+
         static void Main(string[] args)
         {
+            string fileName;
+            fileName = args[0];
+            clock Clock = new clock();
+
             // Temp Program Holds
-            Console.WriteLine("Press any key to exit.");
-            Console.ReadKey();   
 
             
             // Initialize System
                 // Initialize Classes
                 // Read-in, populate memory, set configuration
+                readInConfig(fileName);
+                Clock.setClock(procTime, monTime, hdTime, prinTime, keybTime);
+
             // Run
                     // Hand over control to processing module
                         // Process threads, I/O, interrupt monitoring
                     // Loop until end of metadata
             // Shutdown
+            Console.WriteLine("Press any key to Exit.");
+            Console.ReadKey();   
              
+        }
+
+        static bool readInConfig(String file)
+        {
+            char[] buffer = new char[80];
+
+            try
+            {
+                StreamReader sr = new StreamReader(file);
+
+
+                // skips over 2 information lines
+                sr.ReadLine();
+                sr.ReadLine();
+                // skips over text and reads in the quantum as an int
+                sr.Read(buffer, 0, 18);
+                quantum = int.Parse(sr.ReadLine());
+                // skips over text and reads in the scheduling type
+                sr.Read(buffer, 0, 22);
+                procSch = sr.ReadLine();
+                // skips over text and reads in the file path
+                sr.Read(buffer, 0, 11);
+                filePath = sr.ReadLine();
+                // skips over text and reads in processor cycle time as an int
+                sr.Read(buffer, 0, 29);
+                procTime = int.Parse(sr.ReadLine());
+                // skips over text and read in monitor display time as an int
+                sr.Read(buffer, 0, 29);
+                monTime = int.Parse(sr.ReadLine());
+                // skips over text and reads in hard drive cycle time as an int
+                sr.Read(buffer, 0, 30);
+                hdTime = int.Parse(sr.ReadLine());
+                // skips over text and reads in printer cycle time as an int
+                sr.Read(buffer, 0, 27);
+                prinTime = int.Parse(sr.ReadLine());
+                // skips over text and reads in keyboard cycle time as an int
+                sr.Read(buffer, 0, 28);
+                keybTime = int.Parse(sr.ReadLine());
+                // skips over text and reads in memory type
+                sr.Read(buffer, 0, 13);
+                memoryType = sr.ReadLine();
+                // skips over text and reads in log type
+                sr.Read(buffer, 0, 5);
+                log = sr.ReadLine();
+                sr.Close();
+                return true;
+            }
+
+            // Prints message if file not opened;
+            catch (Exception e)
+            {
+                Console.WriteLine("{0} {1}" , e.Message, "\r\n");
+                return false;
+            }
         }
     }
 }

@@ -101,37 +101,37 @@ namespace OSsimulator
         public void delay(string type, int cycles)
         {
             // simulates processor time
-            if (type == "PROCESSOR")
+            if (type == "processor")
             {
                 Thread.Sleep(processorTime * cycles);
             }
 
             // simulates monitor time
-            if (type == "MONITOR")
+            if (type == "monitor")
             {
                 Thread.Sleep(monitorTime * cycles);
             }
 
             // simulates hard drive time
-            if (type == "HARDDRIVE")
+            if (type == "hard drive")
             {
                 Thread.Sleep(hardDriveTime * cycles);
             }
 
             // simulates printer time
-            if (type == "PRINTER")
+            if (type == "printer")
             {
                 Thread.Sleep(printerTime * cycles);
             }
 
             // simulates keyboard time
-            if (type == "KEYBOARD")
+            if (type == "keyboard")
             {
                 Thread.Sleep(keyBoardTime * cycles);
             }
 
             // simulates anytime you want
-            if (type == "MANUAL")
+            if (type == "manual")
             {
                 Thread.Sleep(cycles);
         }
@@ -143,19 +143,41 @@ namespace OSsimulator
     {
         // Member Fields
             // Number of pending interrupts
-		    // Queue <Type Interrupt>
+            int pendingInterrupts;
 		    // Class Clock
+            clock interrClock;
+            // Main processor
+            processor Proc;
 
         // Constructors
         public interruptManager()
         {
-
+            interrClock = new clock();
+            int pendingInterrupts = 0;
         }
 
         // Methods  
-		    // Create: Adds a new interrupt into the queue
-		    // Remove: Removes interrupt after being serviced
-		    // Service: Prints status to console 
+		    // Create: Adds a new interrupt
+            public void newInterrupt(string type, int cycles, string IO, int PIDNum)
+            {
+                string info;
+                // adds one to the amount of pending interrupts
+                pendingInterrupts++;
+                // waits the amount of time it is supposed to
+                interrClock.delay(type, cycles);
+                // notifies the OS
+                info = "Pid" + PIDNum + " - " + IO + ", " + type + "completed " + interrClock.getElapsedTime();
+                service(info);
+                // decrements the amount of pending interrupts
+                pendingInterrupts--;
+            }
+
+		    // Signals the OS that an Interrupt needs to be managed
+            public void service(string info)
+            {
+                // stops processor
+                Program.Proc.manageInterrupt(info);
+            }
     }
 
     public struct interrupt
@@ -189,6 +211,11 @@ namespace OSsimulator
             // Manage I/O, prints status to console
             // Run(process), prints status to console
             // Enqueue 
+            // Manage Interrupt
+            public void manageInterrupt(string info)
+            {
+
+            }
     }
 
     public class pcb
@@ -465,12 +492,14 @@ namespace OSsimulator
         private static String procSch;
         private static String filePath;
         private static String memoryType;
+        public static processor Proc;
 
         static void Main(string[] args)
         {
             string fileName;
             fileName = args[0];
             clock Clock = new clock();
+            processor Proc = new processor();
 
             // Temp Program Holds
 

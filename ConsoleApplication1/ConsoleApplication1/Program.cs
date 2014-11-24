@@ -525,6 +525,43 @@ namespace OSsimulator
 		    // Interrupt: Calls interrupt function
     }
 
+    public class Logger
+    {
+        // Member Fields
+
+        // Where to log
+        string log;
+
+        // varaible to write to file
+        StreamWriter sw;
+
+        // Default Constructor
+        public Logger(string type)
+        {
+            // assigns log type
+            log = type;
+            // intializes the streamwriter
+            sw = new StreamWriter("results.txt");
+            // flushes the buffer, needed to write to file
+            sw.AutoFlush = true;
+        }
+
+        public void print(string line)
+        {
+            // Writes to the Monitor
+            if ( (log == "Log to Monitor") || (log == "Log to Both") )
+            {
+                Console.WriteLine(line);
+            }
+
+            // Writes to the File
+            if ((log == "Log to File") || (log == "Log to Both"))
+            {
+                sw.WriteLine(line);
+            }
+        }
+    }
+
     class Program
     {
         private static int quantum;
@@ -533,10 +570,10 @@ namespace OSsimulator
         private static int hdTime;
         private static int prinTime;
         private static int keybTime;
-        private static String log;
-        private static String procSch;
-        private static String filePath;
-        private static String memoryType;
+        private static string log;
+        private static string procSch;
+        private static string filePath;
+        private static string memoryType;
         private static processor Proc;
 
         static void Main(string[] args)
@@ -553,6 +590,8 @@ namespace OSsimulator
                 // Read-in, populate memory, set configuration
                 readInConfig(fileName);
                 Clock.setClock(procTime, monTime, hdTime, prinTime, keybTime);
+                Logger logger = new Logger(log);
+
 
             // Run
                     // Hand over control to processing module

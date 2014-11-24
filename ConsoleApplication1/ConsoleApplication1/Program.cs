@@ -345,7 +345,7 @@ namespace OSsimulator
                                 cycleCounter++;
 
                                 // If interrupt occurs, set state, set interrupt bool, and enqueue on waiting queue
-                                if(temp.currentJob.action != (pcb.Actions.Process)
+                                if(temp.currentJob.action != pcb.Actions.Process)
                                         {
                                         interruptFlag = true;
                                         temp.updatState(States.Waiting);
@@ -375,7 +375,58 @@ namespace OSsimulator
             }
             else // SJF (no preemption) and FIFO (order already set for both)
             {
-        
+                // Loop update and run every quantum
+                // Loop while there are still PCBs on the priority queue
+                while(readyQueue.Count() != 0)
+                        {
+                        // Check waiting queue for 'ready' PCBs and reload them into the ready queue, otherwise put them back in waiting
+                        if(waitingQueue.Count() != 0)
+                            {
+                            pcb check = waitingQueue.Dequeue();
+                            if(check.state == States.Ready)
+                                {
+                                readyQueue.Enqueue(check);
+                                }
+                            else
+                                {
+                                waitingQueue.Enqueue(check);
+                                }
+                            }
+
+                        // Update Priority Queue
+
+                        // Dequeue PCB
+                        pcb temp = readyQueue.Dequeue();
+                        temp.updatState(States.Running);
+
+                        // Run through processes of first-priority PCB until PCB finished
+                        int cycleCounter = 0;
+                        while( !temp.finished() && !interruptFlag)
+                                {
+                                // Increment Counter
+                                cycleCounter++;
+
+                                // If interrupt occurs, set state, set interrupt bool, and enqueue on waiting queue
+                                if(temp.currentJob.action != pcb.Actions.Process)
+                                        {
+                                        interruptFlag = true;
+                                        temp.updatState(States.Waiting);
+                                        waitingQueue.Enqueue(temp);
+                                        run(0);
+                                        }
+                                else
+                                    {
+
+                                    // Run processes
+                                    run(temp.currentJob.cycleLength);
+
+                                    // Update cycle times for both priority level of PCB and process itself
+                                    temp.currentJob.cycleLength = (temp.currentJob.cycleLength - cycleCounter);
+                                    temp.priority = (temp.priority - cycleCounter);
+                                    }
+                                }
+
+                        }       
             }
             }
 

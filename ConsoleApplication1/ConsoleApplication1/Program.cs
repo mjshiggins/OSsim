@@ -345,7 +345,7 @@ namespace OSsimulator
                                 cycleCounter++;
 
                                 // If interrupt occurs, set state, set interrupt bool, and enqueue on waiting queue
-                                if(temp.currentJob.action != Actions.Process)
+                                if(temp.currentJob.action != temp.Actions.Process)
                                         {
                                         interruptFlag = true;
                                         temp.updatState(States.Waiting);
@@ -452,7 +452,7 @@ namespace OSsimulator
         public struct Job
         {
             public int cycleLength;
-            Actions action;
+            public Actions action;
             Type? device;
 
             public Job(int cl, Actions a, Type? d)

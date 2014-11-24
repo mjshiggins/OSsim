@@ -8,23 +8,50 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MyDataStructs;
 
 namespace OSsimulator
 {
+    enum States { New, Running, Waiting, Ready, Terminated }
+    public enum Scheduling { FIFO, RR, SJF }
+
+
     public class system // Maintains status of overall system and stores important parameters
     {
         // Member Fields
             // Quantum
             // Scheduling type
+        static Scheduling sched;
+        static Queue<pcb> newProcesses;
         
         // Constructors
-        public system()
+        public system(string fileName)
         {
+            newProcesses = new Queue<pcb>();
+
+            Thread getProgram = new Thread(system.readProgram);
+            getProgram.Start(fileName);
+            getProgram.Join();
+
+            while (newProcesses.Count() != 0)
+            {
+                pcb temp = newProcesses.Dequeue();
+                temp.print();
+            }
 
         }
 
         // Methods
             // Initialize: Boots system, populates metadata and I/O cycle times, begins scheduling/processing
+        static void readProgram(Object file)
+        {
+            string f = file.ToString();
+            Console.WriteLine(f);
+            metadata ourProgram = new metadata(f);
+            ourProgram.readFromFile(ref newProcesses, sched);
+
+            Thread.CurrentThread.Abort();
+        }
 		    // Run:  Initiates processing, hands off control to processor
 		    // Shut Down
     }
@@ -33,10 +60,48 @@ namespace OSsimulator
     {
         // Member Fields
             // Queue<Type PCB>
+        StreamReader fin;
+        string fileName;
 
         // Constructors
-        public metadata()
+        public metadata(string f)
         {
+            fileName = f;
+        }
+
+        public  void readFromFile(ref Queue<pcb> newPCBS, Scheduling schedUsed)
+        {
+            char[] buffer = new char[50];
+            int i =0;
+
+            try
+            {
+                fin = new StreamReader(fileName);
+
+                fin.Read(buffer, 0, 11);
+
+                while((char)fin.Read() == 'A')
+                {
+                    //Sets fin to correct location
+                    fin.Read(buffer, 0, 9);
+
+                    //Creates new pcb
+                    pcb temp = new pcb(ref fin, schedUsed, i);
+
+                    //Enqueues it
+                    newPCBS.Enqueue(temp);
+
+                    //Gets blank
+                    fin.Read();
+                }
+
+                fin.Close();
+            }
+
+            catch (Exception e)
+            {
+                Console.WriteLine("Invalid path or filename in configuration file");
+            }
 
         }
 
@@ -201,16 +266,13 @@ namespace OSsimulator
     public class processor
     {
         // Member Fields
-		    // Cycle time
             int cycleTime;
-            // New Queue <Type PCB>
-		    // Ready Queue <Type PCB>
-            // Running Queue <Type PCB>
-            // Waiting Queue <Type PCB>
-		    // Class::Timer
+            Queue<pcb> newProcesses;
+            PriorityQueue<pcb> readyQueue;
+            List<pcb> waitingQueue;
             clock procClock;
-            // Class::Logger
             Logger procLogger;
+            scheduler osScheduler;
 
             // Interrupt Flag
             bool interruptFlag;
@@ -276,9 +338,8 @@ namespace OSsimulator
             }
     }
 
-    public class pcb
+    public class pcb : IComparable<pcb>
     {
-        private enum States { New, Running, Waiting, Ready, Terminated}
         private enum Actions { Process, Input, Output }
         private enum Type { Keyboard, Monitor, HD }
 
@@ -342,12 +403,17 @@ namespace OSsimulator
         // Member Fields
         private States state;
 		private int  remainingCycles;
+        private Scheduling sched;
+        private int priority;
 		    // I/O Status info: Flag for waiting for interrupt, I/O requirements
         private Queue<Job> upcomingJobs;
+        private StreamReader fin;
+        private Scheduling schedUsed;
+        private int i;
 
         // Constructors
 
-        public pcb(ref StreamReader fin)
+        public pcb(ref StreamReader fin, Scheduling schedulingType, int p)
         {
             state = States.New;
             remainingCycles = 0;
@@ -357,15 +423,39 @@ namespace OSsimulator
             Type? d = null;
             char[] buffer = new char[80];
 
+            //Assigns the scheduling type
+            if (schedulingType == Scheduling.RR)
+            {
+                sched = Scheduling.RR;
+                priority = p;
+            }
+            else if(schedulingType == Scheduling.SJF)
+            {
+                sched = Scheduling.SJF;
+                priority = 0;
+            }
+            else
+            {
+                sched = Scheduling.FIFO;
+                priority = p;
+            }
+
             while(getNextJob(ref fin, ref cl, ref  a, ref d))
             {
                 Job j;
                 j = new Job(cl, a, d);
                 upcomingJobs.Enqueue(j);
+
+                // Adds all the process times to set for shortes job first
+                if(schedulingType == Scheduling.SJF || a == Actions.Process)
+                {
+                    priority += cl;
+                }
             }
 
-            fin.Read(buffer, 0, 6);
+            fin.Read(buffer, 0, 7);
         }
+
 
         private bool getNextJob(ref StreamReader fin, ref int cl,ref Actions a,ref Type? d)
         {
@@ -394,6 +484,8 @@ namespace OSsimulator
                     charRead = (char)fin.Read();
                     break;
                 case 'A':
+                    return false;
+                case 'S':
                     return false;
             }
 
@@ -429,6 +521,13 @@ namespace OSsimulator
             charRead = (char)fin.Read();
 
             return true;
+        }
+
+        public int CompareTo(pcb other)
+        {
+            if (this.priority < other.priority) return -1;
+            else if (this.priority > other.priority) return 1;
+            else return 0;
         }
 
         public void print()
@@ -595,6 +694,7 @@ namespace OSsimulator
             {
                 string fileName;
                 fileName = args[0];
+                system ourOS;
 
 
                 // Temp Program Holds
@@ -610,12 +710,15 @@ namespace OSsimulator
                 interruptManager InterrMan = new interruptManager
                     (ref Proc, procTime, monTime, hdTime, prinTime, keybTime);
 
+                //ourOS = new system(filePath);
+
 
                 // Run
                 // Hand over control to processing module
                 // Process threads, I/O, interrupt monitoring
                 // Loop until end of metadata
                 // Shutdown
+                ourOS = new system("program.txt");
             }
 
             catch (Exception e)

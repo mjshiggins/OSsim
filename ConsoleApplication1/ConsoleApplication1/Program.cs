@@ -10,7 +10,7 @@ using MyDataStructs;
 
 namespace OSsimulator
 {
-    enum States { New, Running, Waiting, Ready, Terminated }
+    public enum States { New, Running, Waiting, Ready, Terminated }
     public enum Scheduling { FIFO, RR, SJF }
 
     public class system // Maintains status of overall system and stores important parameters
@@ -290,7 +290,7 @@ namespace OSsimulator
             procClock.setClock(procTime, mTime, hTime, prTime, kTime);
             interruptFlag = false;
             interruptInfo = "";
-            readyQueue = new PriorityQueue<pcb>();
+            readyQueue = new PriorityQueue<pcb>();;
         }
 
         // Methods
@@ -321,11 +321,11 @@ namespace OSsimulator
                                 }
                             }
 
-                        // Update Priority Queue (Don't know how to do this)
+                        // Update Priority Queue
 
                         // Dequeue PCB
                         pcb temp = readyQueue.Dequeue();
-                        temp.updatState(States.Runnning);
+                        temp.updatState(States.Running);
 
                         // Run through processes of first-priority PCB until cycle quantum reached or PCB finished
                                 // If interrupt occurs, set state and enqueue on waiting queue and run threaded interruptManager
@@ -344,32 +344,7 @@ namespace OSsimulator
             {
                // Loop and run through priority queue
                // Loop while there are still PCBs on the priority queue
-               while(readyQueue.Count() != 0)
-                        {
-                        // Check waiting queue for 'ready' PCBs and reload them into the ready queue, otherwise put them back in waiting
-                        if(waitingQueue.Count() != 0)
-                            {
-                            pcb check = waitingQueue.Dequeue();
-                            if(check.state == States.Ready)
-                                {
-                                readyQueue.Enqueue(check);
-                                }
-                            else
-                                {
-                                waitingQueue.Enqueue(temp);
-                                }
-                            }
-
-                        // Dequeue PCB
-                        pcb temp = readyQueue.Dequeue();
-                        temp.updatState(States.Running);
-
-                        // Run through processes of first-priority PCB until PCB finished
-                                // If interrupt occurs, set state and enqueue on waiting queue and run threaded interruptManager
-
-                                // Run processes
-
-                        }
+                        // Run through processes of first-priority PCB
             }
             }
 

@@ -248,8 +248,6 @@ namespace OSsimulator
                 string info;
                 // adds one to the amount of pending interrupts
                 pendingInterrupts++;
-                // waits the amount of time it is supposed to
-                interrClock.delay(type, cycles);
                 // creates the interrupt information
                 info = "Pid" + PIDNum + " - " + IO + ", " + type + 
                     "completed (" + interrClock.convert(type, cycles) + " mSec)";
@@ -272,7 +270,7 @@ namespace OSsimulator
         // Member Fields
             int cycleTime;
             PriorityQueue<pcb> readyQueue;
-            List<pcb> waitingQueue;
+            Queue<pcb> waitingQueue;
             clock procClock;
             Logger procLogger;
 
@@ -387,8 +385,7 @@ namespace OSsimulator
                     // else it sleeps for one ms
                     Thread.Sleep(1);
                 }
-
-                string status = "PID " + " - Processing (" + runTime +  "mSec)";
+                 string status = "PID " + " - Processing (" + runTime +  "mSec)";
                 procLogger.print(status);
             }
 
@@ -398,6 +395,20 @@ namespace OSsimulator
             public void manageInterrupt(string info)
             {
                 // ....
+
+                string action = "";
+                int cycles = 0;
+                string device = "";
+
+                while (waitingQueue.Count != 0) ;
+
+                pcb temp = waitingQueue.Dequeue();
+                temp.getCurrentInfo(ref action, ref cycles, ref device);
+                procClock.delay(device, cycles);
+
+                temp.updatState(States.Ready);
+                waitingQueue.Enqueue(temp);
+
 
                 // print message
                 procLogger.print(info);

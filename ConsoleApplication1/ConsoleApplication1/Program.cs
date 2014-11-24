@@ -52,7 +52,7 @@ namespace OSsimulator
             Thread.CurrentThread.Abort();
         }
 
-        static public void populateProcesor(ref PriorityQueue<pcb> pQueue)
+        static public void populateProcessor(ref PriorityQueue<pcb> pQueue)
         {
             while(newProcesses.Count() != 0)
             {
@@ -298,7 +298,7 @@ namespace OSsimulator
             interruptFlag = false;
             interruptInfo = "";
             readyQueue = new PriorityQueue<pcb>();
-            system.populateProcesor(ref readyQueue);
+            system.populateProcessor(ref readyQueue);
         }
 
         // Methods
@@ -306,6 +306,8 @@ namespace OSsimulator
             // Create(process), prints status to console
             // Remove(process), prints status to console
             // Manage I/O, prints status to console
+
+            // Update: Updates priority values in ready queue
 
             // Run(process), prints status to console
             public void run(int cycles)

@@ -362,7 +362,7 @@ namespace OSsimulator
 
                         // Dequeue PCB
                         pcb temp = readyQueue.Dequeue();
-                        temp.updatState(States.Runnning);
+                        temp.updatState(States.Running);
 
                         // Run through processes of first-priority PCB until PCB finished
                                 // If interrupt occurs, set state and enqueue on waiting queue and run threaded interruptManager

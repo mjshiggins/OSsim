@@ -31,6 +31,7 @@ namespace OSsimulator
             getProgram.Start(fileName);
             getProgram.Join();
 
+
             while (newProcesses.Count() != 0)
             {
                 pcb temp = newProcesses.Dequeue();
@@ -49,6 +50,18 @@ namespace OSsimulator
             ourProgram.readFromFile(ref newProcesses, sched);
 
             Thread.CurrentThread.Abort();
+        }
+
+        static public void populateProcesor(ref PriorityQueue<pcb> pQueue)
+        {
+            while(newProcesses.Count() != 0)
+            {
+                Console.Write()
+                pcb temp = newProcesses.Dequeue();
+                temp.updatState(States.Ready);
+                pQueue.Enqueue(temp);
+            }
+            
         }
 		    // Run:  Initiates processing, hands off control to processor
 		    // Shut Down
@@ -91,6 +104,7 @@ namespace OSsimulator
 
                     //Gets blank
                     fin.Read();
+                    i++;
                 }
 
                 fin.Close();
@@ -265,7 +279,6 @@ namespace OSsimulator
     {
         // Member Fields
             int cycleTime;
-            Queue<pcb> newProcesses;
             PriorityQueue<pcb> readyQueue;
             List<pcb> waitingQueue;
             clock procClock;
@@ -286,7 +299,8 @@ namespace OSsimulator
             procClock.setClock(procTime, mTime, hTime, prTime, kTime);
             interruptFlag = false;
             interruptInfo = "";
-
+            readyQueue = new PriorityQueue<pcb>();
+            system.populateProcesor(ref readyQueue);
         }
 
         // Methods
@@ -399,6 +413,7 @@ namespace OSsimulator
         }
 
         // Member Fields
+        int pidNum;
         private States state;
 		private int  remainingCycles;
         private Scheduling sched;
@@ -411,8 +426,9 @@ namespace OSsimulator
 
         // Constructors
 
-        public pcb(ref StreamReader fin, Scheduling schedulingType, int p)
+        public pcb(ref StreamReader fin, Scheduling schedulingType, int p, int pid = -1)
         {
+            pidNum = pid;
             state = States.New;
             remainingCycles = 0;
             upcomingJobs = new Queue<Job>();
@@ -539,6 +555,11 @@ namespace OSsimulator
 
         // Methods
 		    // Data Logging: Every time a PCB is manipulated or modified, it logs the event to the hard drive and/or monitor depending on the configuration file
+
+        internal void updatState(States s)
+        {
+            this.state = s;
+        }
     }
 
     public class scheduler // Manages Queues in Class Processor

@@ -308,7 +308,7 @@ namespace OSsimulator
             // Manage I/O, prints status to console
 
             // Update: Updates priority values by iterating through ready queue
-            public update(){
+            public void update(){
             if (sched == Scheduling.RR)
             {
                 // Loop update and run every quantum

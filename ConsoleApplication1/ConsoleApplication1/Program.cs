@@ -579,13 +579,17 @@ namespace OSsimulator
         static void Main(string[] args)
         {
             string fileName;
-            fileName = args[0];
             clock Clock = new clock();
             processor Proc = new processor();
 
-            // Temp Program Holds
+            try
+            {
+                fileName = args[0];
 
-            // Initialize System
+
+                // Temp Program Holds
+
+                // Initialize System
                 // Initialize Classes
                 // Read-in, populate memory, set configuration
                 readInConfig(fileName);
@@ -593,11 +597,18 @@ namespace OSsimulator
                 Logger logger = new Logger(log);
 
 
-            // Run
-                    // Hand over control to processing module
-                        // Process threads, I/O, interrupt monitoring
-                    // Loop until end of metadata
-            // Shutdown
+                // Run
+                // Hand over control to processing module
+                // Process threads, I/O, interrupt monitoring
+                // Loop until end of metadata
+                // Shutdown
+            }
+
+            catch (Exception e)
+            {
+                Console.WriteLine("Command Prompt Example: ConsoleApplication1 config.txt");
+            }
+
             Console.WriteLine("Press any key to Exit.");
             Console.ReadKey();   
              

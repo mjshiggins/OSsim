@@ -308,6 +308,7 @@ namespace OSsimulator
             // Manage I/O, prints status to console
 
             // Update: Updates priority values by iterating through ready queue
+            public update(){
             if (sched == Scheduling.RR)
             {
                 // Loop update and run every quantum
@@ -315,7 +316,10 @@ namespace OSsimulator
                 while(readyQueue.Count() != 0)
                         {
                         // Check waiting queue for 'ready' PCBs
-        
+                        if(waitingQueue.Count() != 0)
+                            {
+
+                            }
 
                         // Dequeue PCB
                         pcb temp = readyQueue.Dequeue();
@@ -339,6 +343,7 @@ namespace OSsimulator
                // Loop and run through priority queue
                // Loop while there are still PCBs on the priority queue
                         // Run through processes of first-priority PCB
+            }
             }
 
             // Run(process), prints status to console

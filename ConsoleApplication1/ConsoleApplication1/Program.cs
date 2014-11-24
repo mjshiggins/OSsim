@@ -12,8 +12,7 @@ namespace OSsimulator
 {
     enum States { New, Running, Waiting, Ready, Terminated }
     public enum Scheduling { FIFO, RR, SJF }
-
-
+ 
     public class system // Maintains status of overall system and stores important parameters
     {
         // Member Fields
@@ -30,14 +29,6 @@ namespace OSsimulator
             Thread getProgram = new Thread(system.readProgram);
             getProgram.Start(fileName);
             getProgram.Join();
-
-           
-            while (newProcesses.Count() != 0)
-            {
-                pcb temp = newProcesses.Dequeue();
-                temp.print();
-            }
-
         }
 
         // Methods
@@ -52,13 +43,15 @@ namespace OSsimulator
             Thread.CurrentThread.Abort();
         }
 
-        static public void populateProcesor(ref PriorityQueue<pcb> pQueue)
+        public void populateProcesor(ref processor p)
         {
             while(newProcesses.Count() != 0)
             {
                 pcb temp = newProcesses.Dequeue();
+                int i = temp.getPID();
+                Console.Write("PID {0} - Enter System\n", i);
                 temp.updatState(States.Ready);
-                pQueue.Enqueue(temp);
+                p.creatPCB(temp);
             }
             
         }
@@ -282,7 +275,6 @@ namespace OSsimulator
             List<pcb> waitingQueue;
             clock procClock;
             Logger procLogger;
-            scheduler osScheduler;
 
             // Interrupt Flag
             bool interruptFlag;
@@ -299,7 +291,6 @@ namespace OSsimulator
             interruptFlag = false;
             interruptInfo = "";
             readyQueue = new PriorityQueue<pcb>();
-            system.populateProcesor(ref readyQueue);
         }
 
         // Methods
@@ -347,12 +338,18 @@ namespace OSsimulator
                 interruptFlag = true;
                 interruptInfo = info;
             }
+
+
+            internal void creatPCB(pcb temp)
+            {
+                readyQueue.Enqueue(temp);
+            }
     }
 
     public class pcb : IComparable<pcb>
     {
-        private enum Actions { Process, Input, Output }
         private enum Type { Keyboard, Monitor, HD }
+        public enum Actions { Process, Input, Output }
 
         struct Job
         {
@@ -374,6 +371,12 @@ namespace OSsimulator
                 device = r.device;
             }
 
+            public void getInfo(ref int c, ref string a, ref string t)
+            {
+                c = cycleLength;
+                a = action.ToString();
+                t = device.ToString();
+            }
 
             public void print()
             {
@@ -464,7 +467,7 @@ namespace OSsimulator
                 }
             }
             currentJob = new Job();
-            moreJobs = getNewJob(ref currentJob);
+            moreJobs = this.getNewJob();
             fin.Read(buffer, 0, 7);
         }
 
@@ -475,6 +478,7 @@ namespace OSsimulator
             this.sched = r.sched;
             this.priority = r.priority;
             this.upcomingJobs = r.upcomingJobs;
+            this.currentJob = r.currentJob;
         }
 
         public int getPID()
@@ -548,13 +552,18 @@ namespace OSsimulator
             return true;
         }
 
-        public bool getNewJob(ref Job j)
+        public bool getNewJob()
         {
-            if(upcomingJobs.Count() ==0)
+            if(upcomingJobs.Count() == 0)
                 return false;
 
-            j = upcomingJobs.Dequeue();
+            currentJob = upcomingJobs.Dequeue();
             return true;
+        }
+
+        public void getCurrentInfo(ref string t,ref  int c, ref string s)
+        {
+            currentJob.getInfo(ref c, ref t, ref s);
         }
 
         public int CompareTo(pcb other)
@@ -655,7 +664,9 @@ namespace OSsimulator
                 clock Clock = new clock();
                 Clock.setClock(procTime, monTime, hdTime, prinTime, keybTime);
                 Logger logger = new Logger(log);
+                ourOS = new system("program.txt");
                 processor Proc = new processor(ref logger, procTime, monTime, hdTime, prinTime, keybTime);
+                ourOS.populateProcesor(ref Proc);
                 interruptManager InterrMan = new interruptManager
                     (ref Proc, procTime, monTime, hdTime, prinTime, keybTime);
 
@@ -670,7 +681,7 @@ namespace OSsimulator
                 // Process threads, I/O, interrupt monitoring
                 // Loop until end of metadata
                 // Shutdown
-                ourOS = new system("program.txt");
+               
             }
 
             catch (Exception e)

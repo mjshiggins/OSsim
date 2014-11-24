@@ -12,7 +12,7 @@ namespace OSsimulator
 {
     enum States { New, Running, Waiting, Ready, Terminated }
     public enum Scheduling { FIFO, RR, SJF }
- 
+
     public class system // Maintains status of overall system and stores important parameters
     {
         // Member Fields
@@ -29,7 +29,7 @@ namespace OSsimulator
             Thread getProgram = new Thread(system.readProgram);
             getProgram.Start(fileName);
             getProgram.Join();
-        }
+            }
 
         // Methods
             // Initialize: Boots system, populates metadata and I/O cycle times, begins scheduling/processing
@@ -299,6 +299,55 @@ namespace OSsimulator
             // Remove(process), prints status to console
             // Manage I/O, prints status to console
 
+            // Update: Updates priority values by iterating through ready queue
+            public void update(){
+            if (sched == Scheduling.RR)
+            {
+                // Loop update and run every quantum
+                // Loop while there are still PCBs on the priority queue
+                while(readyQueue.Count() != 0)
+                        {
+                        // Check waiting queue for 'ready' PCBs and reload them into the ready queue, otherwise put them back in waiting
+                        if(waitingQueue.Count() != 0)
+                            {
+                            pcb check = waitingQueue.Dequeue();
+                            if(check.state == States.Ready)
+                                {
+                                readyQueue.Enqueue(check);
+                                }
+                            else
+                                {
+                                waitingQueue.Enqueue(temp);
+                                }
+                            }
+
+                        // Update Priority Queue
+
+                        // Dequeue PCB
+                        pcb temp = readyQueue.Dequeue();
+                        temp.updatState(States.Runnning);
+
+                        // Run through processes of first-priority PCB until cycle quantum reached or PCB finished
+                                // If interrupt occurs, set state and enqueue on waiting queue and run threaded interruptManager
+
+                                // Run processes
+
+                        // Update cycle times for both priority level of PCB and process itself
+
+                        // Put PCB back on queue if not finished
+                        temp.updatState(States.Ready);
+                        readyQueue.Enqueue(temp);
+                        }
+            
+            }
+            else // SJF (no preemption) and FIFO (order already set for both)
+            {
+               // Loop and run through priority queue
+               // Loop while there are still PCBs on the priority queue
+                        // Run through processes of first-priority PCB
+            }
+            }
+
             // Run(process), prints status to console
             public void run(int cycles)
             {
@@ -343,7 +392,7 @@ namespace OSsimulator
             internal void creatPCB(pcb temp)
             {
                 readyQueue.Enqueue(temp);
-            }
+    }
     }
 
     public class pcb : IComparable<pcb>
@@ -416,7 +465,7 @@ namespace OSsimulator
 
         // Member Fields
         int pidNum;
-        private States state;
+        public States state;
         private Scheduling sched;
         private int priority;
         private Queue<Job> upcomingJobs;
@@ -631,7 +680,7 @@ namespace OSsimulator
 
     class Program
     {
-        private static int quantum;
+        public static int quantum;
         private static int procTime;
         private static int monTime;
         private static int hdTime;

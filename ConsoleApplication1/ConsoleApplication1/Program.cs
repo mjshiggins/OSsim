@@ -31,7 +31,6 @@ namespace OSsimulator
             getProgram.Start(fileName);
             getProgram.Join();
 
-
             while (newProcesses.Count() != 0)
             {
                 pcb temp = newProcesses.Dequeue();
@@ -50,18 +49,6 @@ namespace OSsimulator
             ourProgram.readFromFile(ref newProcesses, sched);
 
             Thread.CurrentThread.Abort();
-        }
-
-        static public void populateProcesor(ref PriorityQueue<pcb> pQueue)
-        {
-            while(newProcesses.Count() != 0)
-            {
-                Console.Write()
-                pcb temp = newProcesses.Dequeue();
-                temp.updatState(States.Ready);
-                pQueue.Enqueue(temp);
-            }
-            
         }
 		    // Run:  Initiates processing, hands off control to processor
 		    // Shut Down
@@ -104,7 +91,6 @@ namespace OSsimulator
 
                     //Gets blank
                     fin.Read();
-                    i++;
                 }
 
                 fin.Close();
@@ -171,7 +157,7 @@ namespace OSsimulator
         // retuns a string containing the number of nanonseconds elapsed from start to stop
         public string getElapsedTime()
         {
-            return (((double)(stopwatch.Elapsed.TotalMilliseconds * 1000000)).ToString("(0.00 nSec)"));
+            return (((double)(stopwatch.Elapsed.TotalMilliseconds * 1000000)).ToString("(0.00 ns)"));
         }
 
         // cycles to milliseconds
@@ -279,6 +265,7 @@ namespace OSsimulator
     {
         // Member Fields
             int cycleTime;
+            Queue<pcb> newProcesses;
             PriorityQueue<pcb> readyQueue;
             List<pcb> waitingQueue;
             clock procClock;
@@ -299,8 +286,7 @@ namespace OSsimulator
             procClock.setClock(procTime, mTime, hTime, prTime, kTime);
             interruptFlag = false;
             interruptInfo = "";
-            readyQueue = new PriorityQueue<pcb>();
-            system.populateProcesor(ref readyQueue);
+
         }
 
         // Methods
@@ -413,7 +399,6 @@ namespace OSsimulator
         }
 
         // Member Fields
-        int pidNum;
         private States state;
 		private int  remainingCycles;
         private Scheduling sched;
@@ -426,9 +411,8 @@ namespace OSsimulator
 
         // Constructors
 
-        public pcb(ref StreamReader fin, Scheduling schedulingType, int p, int pid = -1)
+        public pcb(ref StreamReader fin, Scheduling schedulingType, int p)
         {
-            pidNum = pid;
             state = States.New;
             remainingCycles = 0;
             upcomingJobs = new Queue<Job>();
@@ -555,27 +539,8 @@ namespace OSsimulator
 
         // Methods
 		    // Data Logging: Every time a PCB is manipulated or modified, it logs the event to the hard drive and/or monitor depending on the configuration file
-
-        internal void updatState(States s)
-        {
-            this.state = s;
-        }
     }
 
-<<<<<<< HEAD
-=======
-    public class scheduler // Manages Queues in Class Processor
-    {
-
-        // Methods
-
-
-        	// Functions:
-		    // Enqueue //Enqueue depending on the scheduling type.
-		    // Dequeue //Gets the next PCB in the queue
-    }
-
->>>>>>> FETCH_HEAD
 
 
     public class Logger
@@ -633,9 +598,6 @@ namespace OSsimulator
 
             try
             {
-                Stopwatch sw = new Stopwatch();
-                sw.Start();
-
                 string fileName;
                 fileName = args[0];
                 system ourOS;
@@ -654,9 +616,6 @@ namespace OSsimulator
                 interruptManager InterrMan = new interruptManager
                     (ref Proc, procTime, monTime, hdTime, prinTime, keybTime);
 
-                sw.Stop();
-                Console.WriteLine("{0}{1}",
-                    "SYSTEM - Boot, set up ",((double)(sw.Elapsed.TotalMilliseconds * 1000000)).ToString("(0.00 nSec)"));
                 //ourOS = new system(filePath);
 
 

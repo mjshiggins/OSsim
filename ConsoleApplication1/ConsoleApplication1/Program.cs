@@ -415,14 +415,11 @@ namespace OSsimulator
         // Member Fields
         int pidNum;
         private States state;
-		private int  remainingCycles;
         private Scheduling sched;
         private int priority;
-		    // I/O Status info: Flag for waiting for interrupt, I/O requirements
         private Queue<Job> upcomingJobs;
-        private StreamReader fin;
-        private Scheduling schedUsed;
-        private int i;
+        private Job currentJob;
+        private bool moreJobs;
 
         // Constructors
 
@@ -430,8 +427,9 @@ namespace OSsimulator
         {
             pidNum = pid;
             state = States.New;
-            remainingCycles = 0;
             upcomingJobs = new Queue<Job>();
+
+
             int cl = 0;
             Actions a = Actions.Process;
             Type? d = null;
@@ -466,8 +464,18 @@ namespace OSsimulator
                     priority += cl;
                 }
             }
-
+            currentJob = new Job();
+            moreJobs = getNewJob(ref currentJob);
             fin.Read(buffer, 0, 7);
+        }
+
+        public pcb(pcb r)
+        {
+            this.pidNum = r.pidNum;
+            this.state = r.state;
+            this.sched = r.sched;
+            this.priority = r.priority;
+            this.upcomingJobs = r.upcomingJobs;
         }
 
 
@@ -534,6 +542,15 @@ namespace OSsimulator
             cl = int.Parse(str);
             charRead = (char)fin.Read();
 
+            return true;
+        }
+
+        public bool getNewJob(ref Job j)
+        {
+            if(upcomingJobs.Count() ==0)
+                return false;
+
+            j = upcomingJobs.Dequeue();
             return true;
         }
 

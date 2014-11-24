@@ -307,7 +307,15 @@ namespace OSsimulator
             // Remove(process), prints status to console
             // Manage I/O, prints status to console
 
-            // Update: Updates priority values in ready queue
+            // Update: Updates priority values by iterating through ready queue
+            if (sched == Scheduling.RR)
+            {
+                // Loop update and run every quantum
+            }
+            else // SJF and FIFO (order already set for both)
+            {
+               // Loop and run through priority queue
+            }
 
             // Run(process), prints status to console
             public void run(int cycles)

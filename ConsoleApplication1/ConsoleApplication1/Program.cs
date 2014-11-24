@@ -327,7 +327,7 @@ namespace OSsimulator
                                 }
                             else
                                 {
-                                waitingQueue.Enqueue(temp);
+                                waitingQueue.Enqueue(check);
                                 }
                             }
 
@@ -437,7 +437,7 @@ namespace OSsimulator
         public enum Actions { Process, Input, Output }
 
         //Jobs are created from <action>(<device>)<cycleLength> from program file
-        struct Job
+        public struct Job
         {
             int cycleLength;
             Actions action;

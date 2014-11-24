@@ -43,7 +43,7 @@ namespace OSsimulator
             Thread.CurrentThread.Abort();
         }
 
-        public void populateProcesor(ref processor p)
+        public void populateProcesor(ref processor p, string s)
         {
             while(newProcesses.Count() != 0)
             {
@@ -53,7 +53,7 @@ namespace OSsimulator
                 temp.updatState(States.Ready);
                 p.creatPCB(temp);
             }
-            
+            p.setScheduleType(s);
         }
 		    // Run:  Initiates processing, hands off control to processor
 		    // Shut Down
@@ -273,6 +273,7 @@ namespace OSsimulator
             Queue<pcb> waitingQueue;
             clock procClock;
             Logger procLogger;
+            Scheduling sched;
 
             // Interrupt Flag
             bool interruptFlag;
@@ -288,16 +289,13 @@ namespace OSsimulator
             procClock.setClock(procTime, mTime, hTime, prTime, kTime);
             interruptFlag = false;
             interruptInfo = "";
-            readyQueue = new PriorityQueue<pcb>();
+            readyQueue = new PriorityQueue<pcb>();;
+            waitingQueue = new Queue<pcb>();
         }
 
         // Methods
-		    // Swap Processes(P in processor, 1st P in Queue), prints status to console
-            // Create(process), prints status to console
-            // Remove(process), prints status to console
-            // Manage I/O, prints status to console
 
-            // Update: Updates priority values by iterating through ready queue
+            // Update: Updates priority values by iterating through ready queue, runs scheduling methods
             public void update(){
             if (sched == Scheduling.RR)
             {
@@ -319,22 +317,33 @@ namespace OSsimulator
                                 }
                             }
 
-                        // Update Priority Queue (Don't know how to do this)
+                        // Update Priority Queue
 
                         // Dequeue PCB
                         pcb temp = readyQueue.Dequeue();
-                        temp.updatState(States.Runnning);
+                        temp.updatState(States.Running);
 
                         // Run through processes of first-priority PCB until cycle quantum reached or PCB finished
-                                // If interrupt occurs, set state and enqueue on waiting queue and run threaded interruptManager
+                        int cycleCounter = 0;
+                        while( !temp.finished() && cycleCounter < Program.quantum)
+                                {
+                                cycleCounter++;
+                                // If interrupt occurs, set state, set interrupt bool, and enqueue on waiting queue
 
                                 // Run processes
+                                run(currentJob.cycleLength);
 
-                        // Update cycle times for both priority level of PCB and process itself
+                                // Update cycle times for both priority level of PCB and process itself
+                                temp.currentJob.cycleLength = (temp.currentJob.cycleLength - cycleCounter);
+                                temp.priority = (temp.priority - cycleCounter);
+                                }
 
                         // Put PCB back on queue if not finished
-                        temp.updatState(States.Ready);
-                        readyQueue.Enqueue(temp);
+                        if( !temp.finished() )
+                                {
+                                temp.updatState(States.Ready);
+                                readyQueue.Enqueue(temp);
+                                }
                         }
             
             }
@@ -342,32 +351,7 @@ namespace OSsimulator
             {
                // Loop and run through priority queue
                // Loop while there are still PCBs on the priority queue
-               while(readyQueue.Count() != 0)
-                        {
-                        // Check waiting queue for 'ready' PCBs and reload them into the ready queue, otherwise put them back in waiting
-                        if(waitingQueue.Count() != 0)
-                            {
-                            pcb check = waitingQueue.Dequeue();
-                            if(check.state == States.Ready)
-                                {
-                                readyQueue.Enqueue(check);
-                                }
-                            else
-                                {
-                                waitingQueue.Enqueue(temp);
-                                }
-                            }
-
-                        // Dequeue PCB
-                        pcb temp = readyQueue.Dequeue();
-                        temp.updatState(States.Running);
-
-                        // Run through processes of first-priority PCB until PCB finished
-                                // If interrupt occurs, set state and enqueue on waiting queue and run threaded interruptManager
-
-                                // Run processes
-
-                        }
+                        // Run through processes of first-priority PCB
             }
             }
 
@@ -389,7 +373,6 @@ namespace OSsimulator
                 procLogger.print(status);
             }
 
-            // Enqueue 
 
             // Manage Interrupt
             public void manageInterrupt(string info)
@@ -429,6 +412,16 @@ namespace OSsimulator
             {
                 readyQueue.Enqueue(temp);
     }
+
+            internal void setScheduleType(string s)
+            {
+                if (s == "RR")
+                    sched = Scheduling.RR;
+                else if (s == "SJF")
+                    sched = Scheduling.SJF;
+                else
+                    sched = Scheduling.FIFO;                       
+            }
     }
 
     public class pcb : IComparable<pcb>
@@ -503,10 +496,10 @@ namespace OSsimulator
         int pidNum;
         public States state;
         private Scheduling sched;
-        private int priority;
+        public int priority;
         private Queue<Job> upcomingJobs;
-        private Job currentJob;
-        private bool moreJobs;
+        public Job currentJob;
+        public bool moreJobs;
 
         // Constructors
 
@@ -670,6 +663,16 @@ namespace OSsimulator
         // Methods
 		    // Data Logging: Every time a PCB is manipulated or modified, it logs the event to the hard drive and/or monitor depending on the configuration file
 
+
+        public bool finished()
+            {
+            if(upcomingJObs.Count() != 0)
+                {
+                return false;
+                }
+            return false;
+            }
+
         internal void updatState(States s)
         {
             this.state = s;
@@ -751,7 +754,7 @@ namespace OSsimulator
                 Logger logger = new Logger(log);
                 ourOS = new system("program.txt");
                 processor Proc = new processor(ref logger, procTime, monTime, hdTime, prinTime, keybTime);
-                ourOS.populateProcesor(ref Proc);
+                ourOS.populateProcesor(ref Proc, procSch);
                 interruptManager InterrMan = new interruptManager
                     (ref Proc, procTime, monTime, hdTime, prinTime, keybTime);
 

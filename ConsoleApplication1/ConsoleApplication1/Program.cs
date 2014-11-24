@@ -345,7 +345,7 @@ namespace OSsimulator
                                 // If interrupt occurs, set state, set interrupt bool, and enqueue on waiting queue
 
                                 // Run processes
-                                run(currentJob.cycleLength);
+                                run(temp.currentJob.cycleLength);
 
                                 // Update cycle times for both priority level of PCB and process itself
                                 temp.currentJob.cycleLength = (temp.currentJob.cycleLength - cycleCounter);
@@ -363,9 +363,7 @@ namespace OSsimulator
             }
             else // SJF (no preemption) and FIFO (order already set for both)
             {
-               // Loop and run through priority queue
-               // Loop while there are still PCBs on the priority queue
-                        // Run through processes of first-priority PCB
+        
             }
             }
 

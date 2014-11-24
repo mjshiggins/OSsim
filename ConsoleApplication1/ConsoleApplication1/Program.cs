@@ -543,18 +543,8 @@ namespace OSsimulator
 
     public class scheduler // Manages Queues in Class Processor
     {
-        // Member Fields
-		    // Priority Queue<PCB>
-		    // Schedule type
-		    // Preemptive (yes or no)
 
-        // Constructors
-        public scheduler()
-        {
-
-        }
-
-        // Methods (This needs to be reevaluated for multiple scheduling types)
+        // Methods
         	// Functions:
 		    // Enqueue //Enqueue depending on the scheduling type.
 		    // Dequeue //Gets the next PCB in the queue

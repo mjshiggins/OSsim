@@ -311,10 +311,16 @@ namespace OSsimulator
             if (sched == Scheduling.RR)
             {
                 // Loop update and run every quantum
+                // Loop while there are still PCBs on the priority queue
+                        // Run through processes of first-priority PCB until cycle quantum reached
+                        // Update cycle times for both priority level of PCB and process itself
+            
             }
             else // SJF and FIFO (order already set for both)
             {
                // Loop and run through priority queue
+               // Loop while there are still PCBs on the priority queue
+                        // Run through processes of first-priority PCB
             }
 
             // Run(process), prints status to console
@@ -631,7 +637,7 @@ namespace OSsimulator
 
     class Program
     {
-        private static int quantum;
+        public static int quantum;
         private static int procTime;
         private static int monTime;
         private static int hdTime;

@@ -439,7 +439,7 @@ namespace OSsimulator
         //Jobs are created from <action>(<device>)<cycleLength> from program file
         public struct Job
         {
-            int cycleLength;
+            public int cycleLength;
             Actions action;
             Type? device;
 

@@ -496,7 +496,7 @@ namespace OSsimulator
 
     public class pcb : IComparable<pcb>
     {
-        private enum Type { Keyboard, Monitor, HD }
+        public enum Type { Keyboard, Monitor, HD }
         public enum Actions { Process, Input, Output }
 
         //Jobs are created from <action>(<device>)<cycleLength> from program file
@@ -834,14 +834,13 @@ namespace OSsimulator
                 sw.Stop();
                 Console.WriteLine("{0}{1}",
                     "SYSTEM - Boot, set up ",((double)(sw.Elapsed.TotalMilliseconds * 1000000)).ToString("(0.00 nSec)"));
-                //ourOS = new system(filePath);
 
+                // Gather metadata
+                ourOS = new system(filePath);
 
-                // Run
-                // Hand over control to processing module
-                // Process threads, I/O, interrupt monitoring
-                // Loop until end of metadata
-                // Shutdown
+                // Run Programs
+                Proc.update();
+                
                
             }
 

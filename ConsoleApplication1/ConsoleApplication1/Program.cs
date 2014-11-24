@@ -43,7 +43,7 @@ namespace OSsimulator
             Thread.CurrentThread.Abort();
         }
 
-        public void populateProcesor(ref processor p)
+        public void populateProcesor(ref processor p, string s)
         {
             while(newProcesses.Count() != 0)
             {
@@ -53,7 +53,7 @@ namespace OSsimulator
                 temp.updatState(States.Ready);
                 p.creatPCB(temp);
             }
-            
+            p.setScheduleType(s);
         }
 		    // Run:  Initiates processing, hands off control to processor
 		    // Shut Down
@@ -272,9 +272,10 @@ namespace OSsimulator
         // Member Fields
             int cycleTime;
             PriorityQueue<pcb> readyQueue;
-            List<pcb> waitingQueue;
+            Queue<pcb> waitingQueue;
             clock procClock;
             Logger procLogger;
+            Scheduling sched;
 
             // Interrupt Flag
             bool interruptFlag;
@@ -291,6 +292,7 @@ namespace OSsimulator
             interruptFlag = false;
             interruptInfo = "";
             readyQueue = new PriorityQueue<pcb>();;
+            waitingQueue = new Queue<pcb>();
         }
 
         // Methods
@@ -393,6 +395,16 @@ namespace OSsimulator
             {
                 readyQueue.Enqueue(temp);
     }
+
+            internal void setScheduleType(string s)
+            {
+                if (s == "RR")
+                    sched = Scheduling.RR;
+                else if (s == "SJF")
+                    sched = Scheduling.SJF;
+                else
+                    sched = Scheduling.FIFO;                       
+            }
     }
 
     public class pcb : IComparable<pcb>
@@ -715,7 +727,7 @@ namespace OSsimulator
                 Logger logger = new Logger(log);
                 ourOS = new system("program.txt");
                 processor Proc = new processor(ref logger, procTime, monTime, hdTime, prinTime, keybTime);
-                ourOS.populateProcesor(ref Proc);
+                ourOS.populateProcesor(ref Proc, procSch);
                 interruptManager InterrMan = new interruptManager
                     (ref Proc, procTime, monTime, hdTime, prinTime, keybTime);
 

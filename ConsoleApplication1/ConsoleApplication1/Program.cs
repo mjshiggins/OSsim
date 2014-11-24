@@ -394,7 +394,7 @@ namespace OSsimulator
                             }
 
                         // Update Priority Queue (Done Automatically)
-
+        
                         // Dequeue PCB
                         pcb temp = readyQueue.Dequeue();
                         temp.updateState(States.Running);
@@ -413,7 +413,7 @@ namespace OSsimulator
                                         temp.updateState(States.Waiting);
                                         waitingQueue.Enqueue(temp);
                                         run(0);
-                                        }
+            }
                                 else
                                     {
 
@@ -424,7 +424,7 @@ namespace OSsimulator
                                     temp.currentJob.cycleLength = (temp.currentJob.cycleLength - cycleCounter);
                                     temp.priority = (temp.priority - cycleCounter);
                                     }
-                                }
+            }
 
                         }       
             }
@@ -825,7 +825,7 @@ namespace OSsimulator
                 clock Clock = new clock();
                 Clock.setClock(procTime, monTime, hdTime, prinTime, keybTime);
                 Logger logger = new Logger(log);
-                ourOS = new system("program.txt");
+                ourOS = new system(filePath);
                 processor Proc = new processor(ref logger, procTime, monTime, hdTime, prinTime, keybTime);
                 ourOS.populateProcesor(ref Proc);
                 interruptManager InterrMan = new interruptManager

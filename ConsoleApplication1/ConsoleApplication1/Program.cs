@@ -334,9 +334,12 @@ namespace OSsimulator
 
                                 // Run processes
 
-                        // Update cycle times for both priority level of PCB and process itself
+                                // Update cycle times for both priority level of PCB and process itself
+                                temp.currentJob.cycleLength = 
+                                temp.priority =
 
                         // Put PCB back on queue if not finished
+                        if( temp.
                         temp.updatState(States.Ready);
                         readyQueue.Enqueue(temp);
                         }
@@ -369,7 +372,6 @@ namespace OSsimulator
                 procLogger.print(status);
             }
 
-            // Enqueue 
 
             // Manage Interrupt
             public void manageInterrupt(string info)
@@ -479,10 +481,10 @@ namespace OSsimulator
         int pidNum;
         public States state;
         private Scheduling sched;
-        private int priority;
+        public int priority;
         private Queue<Job> upcomingJobs;
-        private Job currentJob;
-        private bool moreJobs;
+        public Job currentJob;
+        public bool moreJobs;
 
         // Constructors
 
@@ -645,6 +647,16 @@ namespace OSsimulator
 
         // Methods
 		    // Data Logging: Every time a PCB is manipulated or modified, it logs the event to the hard drive and/or monitor depending on the configuration file
+
+
+        public bool finished()
+            {
+            if(upcomingJObs.Count() != 0)
+                {
+                return false;
+                }
+            return false;
+            }
 
         internal void updatState(States s)
         {

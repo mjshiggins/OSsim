@@ -579,6 +579,8 @@ namespace OSsimulator
         }
     }
 
+<<<<<<< HEAD
+=======
     public class scheduler // Manages Queues in Class Processor
     {
 
@@ -590,6 +592,7 @@ namespace OSsimulator
 		    // Dequeue //Gets the next PCB in the queue
     }
 
+>>>>>>> FETCH_HEAD
 
 
     public class Logger

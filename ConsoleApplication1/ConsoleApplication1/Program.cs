@@ -315,11 +315,21 @@ namespace OSsimulator
                 // Loop while there are still PCBs on the priority queue
                 while(readyQueue.Count() != 0)
                         {
-                        // Check waiting queue for 'ready' PCBs
+                        // Check waiting queue for 'ready' PCBs and reload them into the ready queue, otherwise put them back in waiting
                         if(waitingQueue.Count() != 0)
                             {
-
+                            pcb check = waitingQueue.Dequeue();
+                            if(check.state == Ready)
+                                {
+                                readyQueue.Enqueue(check);
+                                }
+                            else
+                                {
+                                waitingQueue.Enqueue(temp);
+                                }
                             }
+
+                        // Update Priority Queue
 
                         // Dequeue PCB
                         pcb temp = readyQueue.Dequeue();
@@ -338,7 +348,7 @@ namespace OSsimulator
                         }
             
             }
-            else // SJF and FIFO (order already set for both)
+            else // SJF (no preemption) and FIFO (order already set for both)
             {
                // Loop and run through priority queue
                // Loop while there are still PCBs on the priority queue
@@ -451,7 +461,7 @@ namespace OSsimulator
 
         // Member Fields
         int pidNum;
-        private States state;
+        public States state;
         private Scheduling sched;
         private int priority;
         private Queue<Job> upcomingJobs;

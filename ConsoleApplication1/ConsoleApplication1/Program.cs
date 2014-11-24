@@ -24,6 +24,7 @@ namespace OSsimulator
         // Constructors
         public system(string fileName)
         {
+            // stores the process read in
             newProcesses = new Queue<pcb>();
 
             //Creates a thread where it gets meatadata info
@@ -37,6 +38,7 @@ namespace OSsimulator
             // Initialize: Boots system, populates metadata and I/O cycle times, begins scheduling/processing
         static void readProgram(Object file)
         {
+            // reads in meta data from file "program.txt"
             string f = file.ToString();
             metadata ourProgram = new metadata(f);
 
@@ -64,13 +66,11 @@ namespace OSsimulator
                 //Passes it to the processor
                 p.creatPCB(temp);
 
-                //Marco, can you insert your funcions to calculate time and output it
             }
 
+            // sets Scheduler Type
             p.setScheduleType(sched);
         }
-		    // Run:  Initiates processing, hands off control to processor
-		    // Shut Down
     }
 
     public class metadata // Reads in data from specified file, saves it in array that later populates Class::Processor member queue. Functions as simulated non-volatile hard disk storage
@@ -86,6 +86,7 @@ namespace OSsimulator
             fileName = f;
         }
 
+        // Reads in process from file
         public  void readFromFile(ref Queue<pcb> newPCBS, Scheduling schedUsed)
         {
             char[] buffer = new char[50];
@@ -452,23 +453,25 @@ namespace OSsimulator
             // Manage Interrupt
             public void manageInterrupt(string info)
             {
-                // ....
-
+                // arguments needed to get from the pcb
                 string action = "";
                 int cycles = 0;
                 string device = "";
 
+                // waits for something to be in the WaitingQueue
                 while (waitingQueue.Count != 0) ;
 
+                // creates temp and gets the first element in the waiting queue
                 pcb temp = waitingQueue.Dequeue();
                 temp.getCurrentInfo(ref action, ref cycles, ref device);
                 procClock.delay(device, cycles);
 
+                // changes the state and puts it back in the ready queue
                 temp.updateState(States.Ready);
                 waitingQueue.Enqueue(temp);
 
 
-                // print message
+                // print message containing interrupt information
                 procLogger.print(info);
 
                 // reset the flag
@@ -478,16 +481,19 @@ namespace OSsimulator
             // Set Interrupt
             public void setInterrupt(string info)
             {
+                // sets the interrupt flag
                 interruptFlag = true;
                 interruptInfo = info;
             }
 
 
+            // creates a PCB
             internal void creatPCB(pcb temp)
             {
                 readyQueue.Enqueue(temp);
             }
 
+            // sets the scedulat type
             internal void setScheduleType(Scheduling s)
             {
                 sched = s;                      
@@ -502,10 +508,12 @@ namespace OSsimulator
         //Jobs are created from <action>(<device>)<cycleLength> from program file
         public struct Job
         {
+            // member fields
             public int cycleLength;
             public Actions action;
             Type? device;
 
+            // Constructor
             public Job(int cl, Actions a, Type? d)
             {
                 cycleLength = cl;
@@ -513,6 +521,7 @@ namespace OSsimulator
                 device = d;
             }
             
+            // Constructor
             public Job(Job r)
             {
                 cycleLength = r.cycleLength;
@@ -520,6 +529,7 @@ namespace OSsimulator
                 device = r.device;
             }
 
+            // gets Job information
             public void getInfo(ref int c, ref string a, ref string t)
             {
                 c = cycleLength;

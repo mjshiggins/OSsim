@@ -31,7 +31,7 @@ namespace OSsimulator
             getProgram.Start(fileName);
             getProgram.Join();
 
-
+           
             while (newProcesses.Count() != 0)
             {
                 pcb temp = newProcesses.Dequeue();
@@ -56,7 +56,6 @@ namespace OSsimulator
         {
             while(newProcesses.Count() != 0)
             {
-                Console.Write()
                 pcb temp = newProcesses.Dequeue();
                 temp.updatState(States.Ready);
                 pQueue.Enqueue(temp);
@@ -97,7 +96,7 @@ namespace OSsimulator
                     fin.Read(buffer, 0, 9);
 
                     //Creates new pcb
-                    pcb temp = new pcb(ref fin, schedUsed, i);
+                    pcb temp = new pcb(ref fin, schedUsed, i, i);
 
                     //Enqueues it
                     newPCBS.Enqueue(temp);
@@ -478,6 +477,10 @@ namespace OSsimulator
             this.upcomingJobs = r.upcomingJobs;
         }
 
+        public int getPID()
+        {
+            return this.pidNum;
+        }
 
         private bool getNextJob(ref StreamReader fin, ref int cl,ref Actions a,ref Type? d)
         {
@@ -578,21 +581,6 @@ namespace OSsimulator
             this.state = s;
         }
     }
-
-<<<<<<< HEAD
-=======
-    public class scheduler // Manages Queues in Class Processor
-    {
-
-        // Methods
-
-
-        	// Functions:
-		    // Enqueue //Enqueue depending on the scheduling type.
-		    // Dequeue //Gets the next PCB in the queue
-    }
-
->>>>>>> FETCH_HEAD
 
 
     public class Logger

@@ -344,6 +344,8 @@ namespace OSsimulator
             {
                // Loop and run through priority queue
                // Loop while there are still PCBs on the priority queue
+               while(readyQueue.Count() != 0)
+                        {
                         // Check waiting queue for 'ready' PCBs and reload them into the ready queue, otherwise put them back in waiting
                         if(waitingQueue.Count() != 0)
                             {
@@ -362,10 +364,12 @@ namespace OSsimulator
                         pcb temp = readyQueue.Dequeue();
                         temp.updatState(States.Runnning);
 
-                        // Run through processes of first-priority PCB until cycle quantum reached or PCB finished
+                        // Run through processes of first-priority PCB until PCB finished
                                 // If interrupt occurs, set state and enqueue on waiting queue and run threaded interruptManager
 
                                 // Run processes
+
+                        }
             }
             }
 

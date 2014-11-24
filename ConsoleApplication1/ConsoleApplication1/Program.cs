@@ -16,7 +16,6 @@ namespace OSsimulator
     public class system // Maintains status of overall system and stores important parameters
     {
         // Member Fields
-            // Quantum
             // Scheduling type
         static Scheduling sched;
         static Queue<pcb> newProcesses;
@@ -64,7 +63,6 @@ namespace OSsimulator
                 //Passes it to the processor
                 p.creatPCB(temp);
 
-                //Marco, can you insert your funcions to calculate time and output it
             }
 
             p.setScheduleType(sched);
@@ -76,7 +74,6 @@ namespace OSsimulator
     public class metadata // Reads in data from specified file, saves it in array that later populates Class::Processor member queue. Functions as simulated non-volatile hard disk storage
     {
         // Member Fields
-            // Queue<Type PCB>
         StreamReader fin;
         string fileName;
 
@@ -86,6 +83,7 @@ namespace OSsimulator
             fileName = f;
         }
 
+        // Read in data
         public  void readFromFile(ref Queue<pcb> newPCBS, Scheduling schedUsed)
         {
             char[] buffer = new char[50];
@@ -123,8 +121,6 @@ namespace OSsimulator
 
         }
 
-        // Methods  
-            // Read: Populates storage array and Class::System members (Potentially a constructor)
     }
 
     public class clock // Dependent on System Time
@@ -587,7 +583,7 @@ namespace OSsimulator
             Type? d = null;
             char[] buffer = new char[80];
 
-            //Assigns the scheduling type
+            // Assigns the scheduling type and set proper priorities
             if (schedulingType == Scheduling.RR)
             {
                 sched = Scheduling.RR;
@@ -717,6 +713,7 @@ namespace OSsimulator
             currentJob.getInfo(ref c, ref t, ref s);
         }
 
+        // Compare Function for Priority Queue
         public int CompareTo(pcb other)
         {
             if (this.priority < other.priority) return -1;
@@ -734,8 +731,6 @@ namespace OSsimulator
         }
 
         // Methods
-		    // Data Logging: Every time a PCB is manipulated or modified, it logs the event to the hard drive and/or monitor depending on the configuration file
-
 
         public bool finished()
             {
@@ -833,8 +828,6 @@ namespace OSsimulator
                 ourOS.populateProcesor(ref Proc);
                 interruptManager InterrMan = new interruptManager
                     (ref Proc, procTime, monTime, hdTime, prinTime, keybTime);
-
-
 
                 // Run Programs
                 Proc.update();

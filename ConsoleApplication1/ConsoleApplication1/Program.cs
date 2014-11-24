@@ -345,7 +345,7 @@ namespace OSsimulator
                                 cycleCounter++;
 
                                 // If interrupt occurs, set state, set interrupt bool, and enqueue on waiting queue
-                                if(temp.currentJob.action != temp.Actions.Process)
+                                if(temp.currentJob.action != OSsimulator.pcb.Actions.Process)
                                         {
                                         interruptFlag = true;
                                         temp.updatState(States.Waiting);
@@ -445,7 +445,7 @@ namespace OSsimulator
 
     public class pcb : IComparable<pcb>
     {
-        private enum Type { Keyboard, Monitor, HD }
+        public enum Type { Keyboard, Monitor, HD }
         public enum Actions { Process, Input, Output }
 
         //Jobs are created from <action>(<device>)<cycleLength> from program file
@@ -774,7 +774,7 @@ namespace OSsimulator
                 clock Clock = new clock();
                 Clock.setClock(procTime, monTime, hdTime, prinTime, keybTime);
                 Logger logger = new Logger(log);
-                ourOS = new system("program.txt");
+                ourOS = new system(filePath);
                 processor Proc = new processor(ref logger, procTime, monTime, hdTime, prinTime, keybTime);
                 ourOS.populateProcesor(ref Proc);
                 interruptManager InterrMan = new interruptManager

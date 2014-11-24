@@ -825,7 +825,7 @@ namespace OSsimulator
                 clock Clock = new clock();
                 Clock.setClock(procTime, monTime, hdTime, prinTime, keybTime);
                 Logger logger = new Logger(log);
-                ourOS = new system(filePath);
+                ourOS = new system("program.txt");
                 processor Proc = new processor(ref logger, procTime, monTime, hdTime, prinTime, keybTime);
                 ourOS.populateProcesor(ref Proc);
                 interruptManager InterrMan = new interruptManager
@@ -835,8 +835,6 @@ namespace OSsimulator
                 Console.WriteLine("{0}{1}",
                     "SYSTEM - Boot, set up ",((double)(sw.Elapsed.TotalMilliseconds * 1000000)).ToString("(0.00 nSec)"));
 
-                // Gather metadata
-                ourOS = new system(filePath);
 
                 // Run Programs
                 Proc.update();

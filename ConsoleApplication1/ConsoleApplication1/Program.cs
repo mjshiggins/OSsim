@@ -312,8 +312,20 @@ namespace OSsimulator
             {
                 // Loop update and run every quantum
                 // Loop while there are still PCBs on the priority queue
+                while(readyQueue.Count() != 0)
+                        {
+
+                        // Dequeue PCB
+                        pcb temp = readyQueue.Dequeue();
+                        temp.updatState(States.Runnning);
+
                         // Run through processes of first-priority PCB until cycle quantum reached
+
                         // Update cycle times for both priority level of PCB and process itself
+
+                        // Put PCB back on queue if not finished
+                        readyQueue.Enqueue(temp);
+                        }
             
             }
             else // SJF and FIFO (order already set for both)

@@ -159,10 +159,11 @@ namespace OSsimulator
             processor Processor;
 
         // Constructors
-        public interruptManager(ref processor Proc)
+            public interruptManager(ref processor Proc, int procTime, int mTime, int hTime, int prTime, int kTime)
         {
             Processor = Proc;
             interrClock = new clock();
+            interrClock.setClock(procTime, mTime, hTime, prTime, kTime);
             int pendingInterrupts = 0;
 
         }
@@ -181,7 +182,8 @@ namespace OSsimulator
                 // waits the amount of time it is supposed to
                 interrClock.delay(type, cycles);
                 // creates the interrupt information
-                info = "Pid" + PIDNum + " - " + IO + ", " + type + "completed " + interrClock.convert(type, cycles);
+                info = "Pid" + PIDNum + " - " + IO + ", " + type + 
+                    "completed (" + interrClock.convert(type, cycles) + " mSec)";
                 // notifies the OS
                 service(info);
                 // decrements the amount of pending interrupts
@@ -206,6 +208,9 @@ namespace OSsimulator
             // Running Queue <Type PCB>
             // Waiting Queue <Type PCB>
 		    // Class::Timer
+            clock procClock;
+            // Class::Logger
+            Logger procLogger;
 
             // Interrupt Flag
             bool interruptFlag;
@@ -214,8 +219,11 @@ namespace OSsimulator
            string interruptInfo;
 
         // Constructors
-        public processor()
+           public processor(ref Logger logger, int procTime, int mTime, int hTime, int prTime, int kTime)
         {
+            procLogger = logger;
+            procClock = new clock();
+            procClock.setClock(procTime, mTime, hTime, prTime, kTime);
             interruptFlag = false;
             interruptInfo = "";
 
@@ -242,6 +250,8 @@ namespace OSsimulator
                     Thread.Sleep(1);
                 }
 
+                string status = "PID " + " - Processing (" + runTime +  "mSec)";
+                procLogger.print(status);
             }
 
             // Enqueue 
@@ -250,6 +260,9 @@ namespace OSsimulator
             public void manageInterrupt(string info)
             {
                 // ....
+
+                // print message
+                procLogger.print(info);
 
                 // reset the flag
                 interruptFlag = false;
@@ -574,16 +587,13 @@ namespace OSsimulator
         private static string procSch;
         private static string filePath;
         private static string memoryType;
-        private static processor Proc;
 
         static void Main(string[] args)
         {
-            string fileName;
-            clock Clock = new clock();
-            processor Proc = new processor();
 
             try
             {
+                string fileName;
                 fileName = args[0];
 
 
@@ -593,8 +603,12 @@ namespace OSsimulator
                 // Initialize Classes
                 // Read-in, populate memory, set configuration
                 readInConfig(fileName);
+                clock Clock = new clock();
                 Clock.setClock(procTime, monTime, hdTime, prinTime, keybTime);
                 Logger logger = new Logger(log);
+                processor Proc = new processor(ref logger, procTime, monTime, hdTime, prinTime, keybTime);
+                interruptManager InterrMan = new interruptManager
+                    (ref Proc, procTime, monTime, hdTime, prinTime, keybTime);
 
 
                 // Run

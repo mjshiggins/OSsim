@@ -339,21 +339,33 @@ namespace OSsimulator
 
                         // Run through processes of first-priority PCB until cycle quantum reached or PCB finished
                         int cycleCounter = 0;
-                        while( !temp.finished() && cycleCounter < Program.quantum)
+                        while( !temp.finished() && cycleCounter < Program.quantum && !interruptFlag)
                                 {
+                                // Increment Counter
                                 cycleCounter++;
+
                                 // If interrupt occurs, set state, set interrupt bool, and enqueue on waiting queue
+                                if(temp.currentJob.action != Actions.Process)
+                                        {
+                                        interruptFlag = true;
+                                        temp.updatState(States.Waiting);
+                                        waitingQueue.Enqueue(temp);
+                                        run(0);
+                                        }
+                                else
+                                    {
 
-                                // Run processes
-                                run(temp.currentJob.cycleLength);
+                                    // Run processes
+                                    run(temp.currentJob.cycleLength);
 
-                                // Update cycle times for both priority level of PCB and process itself
-                                temp.currentJob.cycleLength = (temp.currentJob.cycleLength - cycleCounter);
-                                temp.priority = (temp.priority - cycleCounter);
+                                    // Update cycle times for both priority level of PCB and process itself
+                                    temp.currentJob.cycleLength = (temp.currentJob.cycleLength - cycleCounter);
+                                    temp.priority = (temp.priority - cycleCounter);
+                                    }
                                 }
 
                         // Put PCB back on queue if not finished
-                        if( !temp.finished() )
+                        if( !temp.finished() && !interruptFlag )
                                 {
                                 temp.updatState(States.Ready);
                                 readyQueue.Enqueue(temp);

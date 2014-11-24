@@ -12,6 +12,7 @@ namespace OSsimulator
 {
     public enum States { New, Running, Waiting, Ready, Terminated }
     public enum Scheduling { FIFO, RR, SJF }
+    public enum Actions { Process, Input, Output }
 
     public class system // Maintains status of overall system and stores important parameters
     {
@@ -345,7 +346,7 @@ namespace OSsimulator
                                 cycleCounter++;
 
                                 // If interrupt occurs, set state, set interrupt bool, and enqueue on waiting queue
-                                if(temp.currentJob.action != temp.Actions.Process)
+                                if(temp.currentJob.action != (Actions.Process))
                                         {
                                         interruptFlag = true;
                                         temp.updatState(States.Waiting);

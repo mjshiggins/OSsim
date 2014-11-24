@@ -444,7 +444,7 @@ namespace OSsimulator
                 j = new Job(cl, a, d);
                 upcomingJobs.Enqueue(j);
 
-                // Adds all the process times to set for shortes job first
+                // Adds all the process times to set for shortest job first
                 if(schedulingType == Scheduling.SJF || a == Actions.Process)
                 {
                     priority += cl;

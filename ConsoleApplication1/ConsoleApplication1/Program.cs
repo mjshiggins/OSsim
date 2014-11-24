@@ -97,44 +97,53 @@ namespace OSsimulator
             return (((double)(stopwatch.Elapsed.TotalMilliseconds * 1000000)).ToString("(0.00 ns)"));
         }
 
+        // cycles to milliseconds
+        public int convert(string type, int cycles)
+        {
+            // converts processor time
+            if (type == "processor")
+            {
+                return (processorTime * cycles);
+            }
+
+            // converts monitor time
+            if (type == "monitor")
+            {
+                return (monitorTime * cycles);
+            }
+
+            // converts hard drive time
+            if (type == "hard drive")
+            {
+                return (hardDriveTime * cycles);
+            }
+
+            // converts printer time
+            if (type == "printer")
+            {
+                return (printerTime * cycles);
+            }
+
+            // converts keyboard time
+            if (type == "keyboard")
+            {
+                return (keyBoardTime * cycles);
+            }
+
+            // converts anytime you want
+            if (type == "manual")
+            {
+                return cycles;
+            }
+
+            else
+                return 0;
+        }
+
         // creates a delay to simulate time
         public void delay(string type, int cycles)
         {
-            // simulates processor time
-            if (type == "processor")
-            {
-                Thread.Sleep(processorTime * cycles);
-            }
-
-            // simulates monitor time
-            if (type == "monitor")
-            {
-                Thread.Sleep(monitorTime * cycles);
-            }
-
-            // simulates hard drive time
-            if (type == "hard drive")
-            {
-                Thread.Sleep(hardDriveTime * cycles);
-            }
-
-            // simulates printer time
-            if (type == "printer")
-            {
-                Thread.Sleep(printerTime * cycles);
-            }
-
-            // simulates keyboard time
-            if (type == "keyboard")
-            {
-                Thread.Sleep(keyBoardTime * cycles);
-            }
-
-            // simulates anytime you want
-            if (type == "manual")
-            {
-                Thread.Sleep(cycles);
-        }
+            Thread.Sleep(convert(type, cycles));
         }
 
     }
@@ -154,13 +163,16 @@ namespace OSsimulator
         {
             Processor = Proc;
             interrClock = new clock();
-
             int pendingInterrupts = 0;
 
         }
 
         // Methods  
-		    // Create: Adds a new interrupt
+		    // Create: Adds a new interrupt 
+            // Type: "printer", "hard drive", "monitor", "keyboard", etc
+            // Cycles: number of cycles needed
+            // IO: "Input" or "Output"
+            // PIDNum: What Pid it is from
             public void newInterrupt(string type, int cycles, string IO, int PIDNum)
             {
                 string info;
@@ -168,8 +180,9 @@ namespace OSsimulator
                 pendingInterrupts++;
                 // waits the amount of time it is supposed to
                 interrClock.delay(type, cycles);
+                // creates the interrupt information
+                info = "Pid" + PIDNum + " - " + IO + ", " + type + "completed " + interrClock.convert(type, cycles);
                 // notifies the OS
-                info = "Pid" + PIDNum + " - " + IO + ", " + type + "completed " + interrClock.getElapsedTime();
                 service(info);
                 // decrements the amount of pending interrupts
                 pendingInterrupts--;
@@ -178,32 +191,33 @@ namespace OSsimulator
 		    // Signals the OS that an Interrupt needs to be managed
             public void service(string info)
             {
-                // stops processor
-                Processor.manageInterrupt(info);
+                // sets the Interrupt
+                Processor.setInterrupt(info);
             }
-    }
-
-    public struct interrupt
-    {
-        // Member Fields
-		    // Process number
-            // Interrupt description
-		    // Time needed
     }
 
     public class processor
     {
         // Member Fields
 		    // Cycle time
+            int cycleTime;
             // New Queue <Type PCB>
 		    // Ready Queue <Type PCB>
             // Running Queue <Type PCB>
             // Waiting Queue <Type PCB>
 		    // Class::Timer
 
+            // Interrupt Flag
+            bool interruptFlag;
+
+            // Interrupt Info
+           string interruptInfo;
+
         // Constructors
         public processor()
         {
+            interruptFlag = false;
+            interruptInfo = "";
 
         }
 
@@ -212,12 +226,40 @@ namespace OSsimulator
             // Create(process), prints status to console
             // Remove(process), prints status to console
             // Manage I/O, prints status to console
+
             // Run(process), prints status to console
+            public void run(int cycles)
+            {
+                int runTime = cycles * cycleTime;
+
+                for (int i = 0; i < runTime; i++)
+                {
+                    // if there is an interrupt it will be managed
+                    if (interruptFlag)
+                        manageInterrupt(interruptInfo);
+
+                    // else it sleeps for one ms
+                    Thread.Sleep(1);
+                }
+
+            }
+
             // Enqueue 
+
             // Manage Interrupt
             public void manageInterrupt(string info)
             {
+                // ....
 
+                // reset the flag
+                interruptFlag = false;
+            }
+
+            // Set Interrupt
+            public void setInterrupt(string info)
+            {
+                interruptFlag = true;
+                interruptInfo = info;
             }
     }
 
@@ -495,7 +537,7 @@ namespace OSsimulator
         private static String procSch;
         private static String filePath;
         private static String memoryType;
-        public static processor Proc;
+        private static processor Proc;
 
         static void Main(string[] args)
         {
@@ -522,7 +564,7 @@ namespace OSsimulator
              
         }
 
-        static bool readInConfig(String file)
+        static void readInConfig(String file)
         {
             char[] buffer = new char[80];
 
@@ -530,49 +572,57 @@ namespace OSsimulator
             {
                 StreamReader sr = new StreamReader(file);
 
-
                 // skips over 2 information lines
                 sr.ReadLine();
                 sr.ReadLine();
+
                 // skips over text and reads in the quantum as an int
                 sr.Read(buffer, 0, 18);
                 quantum = int.Parse(sr.ReadLine());
+
                 // skips over text and reads in the scheduling type
                 sr.Read(buffer, 0, 22);
                 procSch = sr.ReadLine();
+
                 // skips over text and reads in the file path
                 sr.Read(buffer, 0, 11);
                 filePath = sr.ReadLine();
+
                 // skips over text and reads in processor cycle time as an int
                 sr.Read(buffer, 0, 29);
                 procTime = int.Parse(sr.ReadLine());
+
                 // skips over text and read in monitor display time as an int
                 sr.Read(buffer, 0, 29);
                 monTime = int.Parse(sr.ReadLine());
+
                 // skips over text and reads in hard drive cycle time as an int
                 sr.Read(buffer, 0, 30);
                 hdTime = int.Parse(sr.ReadLine());
+
                 // skips over text and reads in printer cycle time as an int
                 sr.Read(buffer, 0, 27);
                 prinTime = int.Parse(sr.ReadLine());
+
                 // skips over text and reads in keyboard cycle time as an int
                 sr.Read(buffer, 0, 28);
                 keybTime = int.Parse(sr.ReadLine());
+
                 // skips over text and reads in memory type
                 sr.Read(buffer, 0, 13);
                 memoryType = sr.ReadLine();
+
                 // skips over text and reads in log type
                 sr.Read(buffer, 0, 5);
                 log = sr.ReadLine();
+
                 sr.Close();
-                return true;
             }
 
             // Prints message if file not opened;
             catch (Exception e)
             {
                 Console.WriteLine("{0} {1}" , e.Message, "\r\n");
-                return false;
             }
         }
     }

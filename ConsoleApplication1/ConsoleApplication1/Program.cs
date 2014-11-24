@@ -147,13 +147,16 @@ namespace OSsimulator
 		    // Class Clock
             clock interrClock;
             // Main processor
-            processor Proc;
+            processor Processor;
 
         // Constructors
-        public interruptManager()
+        public interruptManager(ref processor Proc)
         {
+            Processor = Proc;
             interrClock = new clock();
+
             int pendingInterrupts = 0;
+
         }
 
         // Methods  
@@ -176,7 +179,7 @@ namespace OSsimulator
             public void service(string info)
             {
                 // stops processor
-                Program.Proc.manageInterrupt(info);
+                Processor.manageInterrupt(info);
             }
     }
 

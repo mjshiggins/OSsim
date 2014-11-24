@@ -171,7 +171,7 @@ namespace OSsimulator
         // retuns a string containing the number of nanonseconds elapsed from start to stop
         public string getElapsedTime()
         {
-            return (((double)(stopwatch.Elapsed.TotalMilliseconds * 1000000)).ToString("(0.00 ns)"));
+            return (((double)(stopwatch.Elapsed.TotalMilliseconds * 1000000)).ToString("(0.00 nSec)"));
         }
 
         // cycles to milliseconds
@@ -460,7 +460,7 @@ namespace OSsimulator
                 j = new Job(cl, a, d);
                 upcomingJobs.Enqueue(j);
 
-                // Adds all the process times to set for shortes job first
+                // Adds all the process times to set for shortest job first
                 if(schedulingType == Scheduling.SJF || a == Actions.Process)
                 {
                     priority += cl;
@@ -564,97 +564,16 @@ namespace OSsimulator
 
     public class scheduler // Manages Queues in Class Processor
     {
-        // Member Fields
-		    // Priority Queue<PCB>
-		    // Schedule type
-		    // Preemptive (yes or no)
 
-        // Constructors
-        public scheduler()
-        {
+        // Methods
 
-        }
 
-        // Methods (This needs to be reevaluated for multiple scheduling types)
         	// Functions:
 		    // Enqueue //Enqueue depending on the scheduling type.
 		    // Dequeue //Gets the next PCB in the queue
     }
 
-    public class device // Accepts process as argument that requires use of hardware I/O
-    {
-        // Member Fields
-		    // Cycle Time
 
-        // Constructors
-        public device()
-        {
-
-        }
-
-        // Methods
-		    // Interrupt: Calls the appropriate function in the Class::Interrupt
-
-    }
-
-    public class monitor : device
-    {
-        // Member Fields
-
-        // Constructors
-        public monitor()
-        {
-
-        }
-
-        // Methods
-            // Output: Simulates Output to monitor, prints status to console
-    }
-
-    public class printer : device
-    {
-        // Member Fields
-
-        // Constructors
-        public printer()
-        {
-
-        }
-
-        // Methods
-            // Output: Simulates Output to printer, prints status to console
-
-    }
-
-    public class hd : device
-    {
-        // Member Fields
-
-        // Constructors
-        public hd()
-        {
-
-        }
-
-        // Methods
-        	// Output: Simulates Output to hard drive, prints status to console
-		    // Input: Simulates Input from hard drive, prints status to console
-    }
-
-    class keyboard : device
-    {
-        // Member Fields
-
-        // Constructors
-        public keyboard()
-        {
-
-        }
-
-        // Methods
-        	// Input: Simulates input from keyboard, prints status to console
-		    // Interrupt: Calls interrupt function
-    }
 
     public class Logger
     {
@@ -711,6 +630,9 @@ namespace OSsimulator
 
             try
             {
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+
                 string fileName;
                 fileName = args[0];
                 system ourOS;
@@ -729,6 +651,9 @@ namespace OSsimulator
                 interruptManager InterrMan = new interruptManager
                     (ref Proc, procTime, monTime, hdTime, prinTime, keybTime);
 
+                sw.Stop();
+                Console.WriteLine("{0}{1}",
+                    "SYSTEM - Boot, set up ",((double)(sw.Elapsed.TotalMilliseconds * 1000000)).ToString("(0.00 nSec)"));
                 //ourOS = new system(filePath);
 
 

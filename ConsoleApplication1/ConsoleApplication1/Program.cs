@@ -282,7 +282,6 @@ namespace OSsimulator
             List<pcb> waitingQueue;
             clock procClock;
             Logger procLogger;
-            scheduler osScheduler;
 
             // Interrupt Flag
             bool interruptFlag;

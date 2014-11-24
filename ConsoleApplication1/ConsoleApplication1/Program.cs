@@ -319,7 +319,7 @@ namespace OSsimulator
                         pcb temp = readyQueue.Dequeue();
                         temp.updatState(States.Runnning);
 
-                        // Run through processes of first-priority PCB until cycle quantum reached
+                        // Run through processes of first-priority PCB until cycle quantum reached or PCB finished
 
                         // Update cycle times for both priority level of PCB and process itself
 

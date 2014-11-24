@@ -296,12 +296,8 @@ namespace OSsimulator
         }
 
         // Methods
-		    // Swap Processes(P in processor, 1st P in Queue), prints status to console
-            // Create(process), prints status to console
-            // Remove(process), prints status to console
-            // Manage I/O, prints status to console
 
-            // Update: Updates priority values by iterating through ready queue
+            // Update: Updates priority values by iterating through ready queue, runs scheduling methods
             public void update(){
             if (sched == Scheduling.RR)
             {
@@ -330,18 +326,26 @@ namespace OSsimulator
                         temp.updatState(States.Running);
 
                         // Run through processes of first-priority PCB until cycle quantum reached or PCB finished
-                                // If interrupt occurs, set state and enqueue on waiting queue and run threaded interruptManager
+                        int cycleCounter = 0;
+                        while( !temp.finished() && cycleCounter < Program.quantum)
+                                {
+                                cycleCounter++;
+                                // If interrupt occurs, set state, set interrupt bool, and enqueue on waiting queue
 
                                 // Run processes
+                                run(currentJob.cycleLength);
 
                                 // Update cycle times for both priority level of PCB and process itself
-                                temp.currentJob.cycleLength = 
-                                temp.priority =
+                                temp.currentJob.cycleLength = (temp.currentJob.cycleLength - cycleCounter);
+                                temp.priority = (temp.priority - cycleCounter);
+                                }
 
                         // Put PCB back on queue if not finished
-                        if( temp.
-                        temp.updatState(States.Ready);
-                        readyQueue.Enqueue(temp);
+                        if( !temp.finished() )
+                                {
+                                temp.updatState(States.Ready);
+                                readyQueue.Enqueue(temp);
+                                }
                         }
             
             }

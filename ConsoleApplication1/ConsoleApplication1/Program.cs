@@ -666,7 +666,7 @@ namespace OSsimulator
 
         public bool finished()
             {
-            if(upcomingJObs.Count() != 0)
+            if(upcomingJobs.Count() != 0)
                 {
                 return false;
                 }

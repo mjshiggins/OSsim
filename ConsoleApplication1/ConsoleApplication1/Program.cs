@@ -319,7 +319,7 @@ namespace OSsimulator
                         if(waitingQueue.Count() != 0)
                             {
                             pcb check = waitingQueue.Dequeue();
-                            if(check.state == Ready)
+                            if(check.state == States.Ready)
                                 {
                                 readyQueue.Enqueue(check);
                                 }

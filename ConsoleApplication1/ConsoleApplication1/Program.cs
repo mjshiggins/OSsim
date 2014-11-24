@@ -10,7 +10,7 @@ using MyDataStructs;
 
 namespace OSsimulator
 {
-    enum States { New, Running, Waiting, Ready, Terminated }
+    public enum States { New, Running, Waiting, Ready, Terminated }
     public enum Scheduling { FIFO, RR, SJF }
 
     public class system // Maintains status of overall system and stores important parameters

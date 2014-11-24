@@ -1,6 +1,4 @@
-﻿
-// github VS xtest
-using System;
+﻿using System;
 using System.IO;
 using System.Diagnostics;
 using System.Collections.Generic;
@@ -723,7 +721,8 @@ namespace OSsimulator
 
             catch (Exception e)
             {
-                Console.WriteLine("Command Prompt Example: ConsoleApplication1 config.txt");
+                Console.WriteLine("No Config file specified");
+                Console.WriteLine("Commandline Prompt Example: Simulator config.txt");
             }
 
             Console.WriteLine("Press any key to Exit.");

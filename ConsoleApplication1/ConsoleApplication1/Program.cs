@@ -157,7 +157,7 @@ namespace OSsimulator
         // retuns a string containing the number of nanonseconds elapsed from start to stop
         public string getElapsedTime()
         {
-            return (((double)(stopwatch.Elapsed.TotalMilliseconds * 1000000)).ToString("(0.00 ns)"));
+            return (((double)(stopwatch.Elapsed.TotalMilliseconds * 1000000)).ToString("(0.00 nSec)"));
         }
 
         // cycles to milliseconds
@@ -690,6 +690,9 @@ namespace OSsimulator
 
             try
             {
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+
                 string fileName;
                 fileName = args[0];
                 system ourOS;
@@ -708,6 +711,9 @@ namespace OSsimulator
                 interruptManager InterrMan = new interruptManager
                     (ref Proc, procTime, monTime, hdTime, prinTime, keybTime);
 
+                sw.Stop();
+                Console.WriteLine("{0}{1}",
+                    "SYSTEM - Boot, set up ",((double)(sw.Elapsed.TotalMilliseconds * 1000000)).ToString("(0.00 nSec)"));
                 //ourOS = new system(filePath);
 
 

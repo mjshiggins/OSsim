@@ -59,7 +59,7 @@ namespace OSsimulator
                 Console.Write("PID {0} - Enter System\n", i);
 
                 //Switches the state from new to ready
-                temp.updatState(States.Ready);
+                temp.updateState(States.Ready);
 
                 //Passes it to the processor
                 p.creatPCB(temp);
@@ -331,11 +331,11 @@ namespace OSsimulator
                                 }
                             }
 
-                        // Update Priority Queue
+                        // Update Priority Queue (Done Automatically)
 
                         // Dequeue PCB
                         pcb temp = readyQueue.Dequeue();
-                        temp.updatState(States.Running);
+                        temp.updateState(States.Running);
 
                         // Run through processes of first-priority PCB until cycle quantum reached or PCB finished
                         int cycleCounter = 0;
@@ -345,10 +345,10 @@ namespace OSsimulator
                                 cycleCounter++;
 
                                 // If interrupt occurs, set state, set interrupt bool, and enqueue on waiting queue
-                                if(temp.currentJob.action != OSsimulator.pcb.Actions.Process)
+                                if(temp.currentJob.action != pcb.Actions.Process)
                                         {
                                         interruptFlag = true;
-                                        temp.updatState(States.Waiting);
+                                        temp.updateState(States.Waiting);
                                         waitingQueue.Enqueue(temp);
                                         run(0);
                                         }
@@ -367,7 +367,7 @@ namespace OSsimulator
                         // Put PCB back on queue if not finished
                         if( !temp.finished() && !interruptFlag )
                                 {
-                                temp.updatState(States.Ready);
+                                temp.updateState(States.Ready);
                                 readyQueue.Enqueue(temp);
                                 }
                         }
@@ -375,7 +375,58 @@ namespace OSsimulator
             }
             else // SJF (no preemption) and FIFO (order already set for both)
             {
+                // Loop update and run every quantum
+                // Loop while there are still PCBs on the priority queue
+                while(readyQueue.Count() != 0)
+                        {
+                        // Check waiting queue for 'ready' PCBs and reload them into the ready queue, otherwise put them back in waiting
+                        if(waitingQueue.Count() != 0)
+                            {
+                            pcb check = waitingQueue.Dequeue();
+                            if(check.state == States.Ready)
+                                {
+                                readyQueue.Enqueue(check);
+                                }
+                            else
+                                {
+                                waitingQueue.Enqueue(check);
+                                }
+                            }
+
+                        // Update Priority Queue (Done Automatically)
         
+                        // Dequeue PCB
+                        pcb temp = readyQueue.Dequeue();
+                        temp.updateState(States.Running);
+
+                        // Run through processes of first-priority PCB until PCB finished
+                        int cycleCounter = 0;
+                        while( !temp.finished() && !interruptFlag)
+                                {
+                                // Increment Counter
+                                cycleCounter++;
+
+                                // If interrupt occurs, set state, set interrupt bool, and enqueue on waiting queue
+                                if(temp.currentJob.action != pcb.Actions.Process)
+                                        {
+                                        interruptFlag = true;
+                                        temp.updateState(States.Waiting);
+                                        waitingQueue.Enqueue(temp);
+                                        run(0);
+            }
+                                else
+                                    {
+
+                                    // Run processes
+                                    run(temp.currentJob.cycleLength);
+
+                                    // Update cycle times for both priority level of PCB and process itself
+                                    temp.currentJob.cycleLength = (temp.currentJob.cycleLength - cycleCounter);
+                                    temp.priority = (temp.priority - cycleCounter);
+                                    }
+            }
+
+                        }       
             }
             }
 
@@ -413,7 +464,7 @@ namespace OSsimulator
                 temp.getCurrentInfo(ref action, ref cycles, ref device);
                 procClock.delay(device, cycles);
 
-                temp.updatState(States.Ready);
+                temp.updateState(States.Ready);
                 waitingQueue.Enqueue(temp);
 
 
@@ -695,7 +746,7 @@ namespace OSsimulator
             return false;
             }
 
-        internal void updatState(States s)
+        internal void updateState(States s)
         {
             this.state = s;
         }

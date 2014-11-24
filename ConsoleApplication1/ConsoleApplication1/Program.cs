@@ -541,15 +541,6 @@ namespace OSsimulator
 		    // Data Logging: Every time a PCB is manipulated or modified, it logs the event to the hard drive and/or monitor depending on the configuration file
     }
 
-    public class scheduler // Manages Queues in Class Processor
-    {
-
-        // Methods
-        	// Functions:
-		    // Enqueue //Enqueue depending on the scheduling type.
-		    // Dequeue //Gets the next PCB in the queue
-    }
-
 
 
     public class Logger

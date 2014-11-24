@@ -26,34 +26,48 @@ namespace OSsimulator
         {
             newProcesses = new Queue<pcb>();
 
+            //Creates a thread where it gets meatadata info
+            //Waits for the thread to finish
             Thread getProgram = new Thread(system.readProgram);
             getProgram.Start(fileName);
             getProgram.Join();
-            }
+         }
 
         // Methods
             // Initialize: Boots system, populates metadata and I/O cycle times, begins scheduling/processing
         static void readProgram(Object file)
         {
             string f = file.ToString();
-            Console.WriteLine(f);
             metadata ourProgram = new metadata(f);
+
+            //This is where the program inputs the inforamtion
             ourProgram.readFromFile(ref newProcesses, sched);
 
+            //Exits the thread
             Thread.CurrentThread.Abort();
         }
 
-        public void populateProcesor(ref processor p, string s)
+        public void populateProcesor(ref processor p)
         {
+            //While there are processes in the ready queue
             while(newProcesses.Count() != 0)
             {
                 pcb temp = newProcesses.Dequeue();
+
+                //Gets the PID number
                 int i = temp.getPID();
                 Console.Write("PID {0} - Enter System\n", i);
+
+                //Switches the state from new to ready
                 temp.updatState(States.Ready);
+
+                //Passes it to the processor
                 p.creatPCB(temp);
+
+                //Marco, can you insert your funcions to calculate time and output it
             }
-            p.setScheduleType(s);
+
+            p.setScheduleType(sched);
         }
 		    // Run:  Initiates processing, hands off control to processor
 		    // Shut Down
@@ -394,16 +408,11 @@ namespace OSsimulator
             internal void creatPCB(pcb temp)
             {
                 readyQueue.Enqueue(temp);
-    }
+            }
 
-            internal void setScheduleType(string s)
+            internal void setScheduleType(Scheduling s)
             {
-                if (s == "RR")
-                    sched = Scheduling.RR;
-                else if (s == "SJF")
-                    sched = Scheduling.SJF;
-                else
-                    sched = Scheduling.FIFO;                       
+                sched = s;                      
             }
     }
 
@@ -412,6 +421,7 @@ namespace OSsimulator
         private enum Type { Keyboard, Monitor, HD }
         public enum Actions { Process, Input, Output }
 
+        //Jobs are created from <action>(<device>)<cycleLength> from program file
         struct Job
         {
             int cycleLength;
@@ -439,6 +449,7 @@ namespace OSsimulator
                 t = device.ToString();
             }
 
+            //Used for testing purposes
             public void print()
             {
                 switch(action)
@@ -615,6 +626,7 @@ namespace OSsimulator
 
         public bool getNewJob()
         {
+            //If there are no more jobs to complete then return false
             if(upcomingJobs.Count() == 0)
                 return false;
 
@@ -727,7 +739,7 @@ namespace OSsimulator
                 Logger logger = new Logger(log);
                 ourOS = new system("program.txt");
                 processor Proc = new processor(ref logger, procTime, monTime, hdTime, prinTime, keybTime);
-                ourOS.populateProcesor(ref Proc, procSch);
+                ourOS.populateProcesor(ref Proc);
                 interruptManager InterrMan = new interruptManager
                     (ref Proc, procTime, monTime, hdTime, prinTime, keybTime);
 
